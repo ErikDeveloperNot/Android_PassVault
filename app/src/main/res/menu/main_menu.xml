@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!--item android:id="@+id/new_game"
+        android:icon="@drawable/settings"
+        android:title="@string/menu_settings"
+        app:showAsAction="ifRoom"/-->
+    <item android:id="@+id/menu_settings"
+        android:icon="@drawable/settings"
+        android:title="@string/menu_settings">
+        <!-- "file" submenu -->
+        <!--menu>
+            <item android:id="@+id/menu_settings_generator"
+                android:title="@string/menu_settings_generator" />
+            <item android:id="@+id/menu_settings_database"
+                android:title="@string/menu_settings_database" />
+            <item android:id="@+id/menu_settings_sync"
+                android:title="@string/menu_settings_sync" />
+        </menu-->
+    </item>
+    <item android:id="@+id/menu_sync"
+        android:title="@string/menu_sync">
+        <menu>
+            <item android:id="@+id/menu_sync_free"
+                android:title="@string/menu_sync_free"/>
+            <item android:id="@+id/menu_sync_personal"
+                android:title="@string/menu_sync_personal"/>
+        </menu>
+    </item>
+    <item android:id="@+id/menu_key"
+        android:title="@string/menu_key" />
+    <item android:id="@+id/menu_exit"
+        android:title="@string/menu_exit" />
+</menu>

@@ -1,0 +1,79 @@
+apply plugin: 'com.android.application'
+
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
+    defaultConfig {
+        applicationId "com.developernot.passvault"
+        minSdkVersion 17
+        //minSdkVersion 25
+        targetSdkVersion 25
+        versionCode 1
+        versionName "beta-1.0.1"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
+
+        multiDexEnabled true
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    // workaround for "duplicate files during packaging of APK" issue:
+    packagingOptions {
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+        flatDir {
+            dirs '/opt/builds/passvault/android'
+            //dirs 'libs'
+        }
+    }
+}
+
+
+dependencies {
+    compile 'com.android.support:multidex:1.0.1'
+
+
+    ///compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    compile fileTree(dir: '/opt/builds/passvault/android', include: ['*.jar'])
+
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+
+    compile 'commons-validator:commons-validator:1.6'
+    compile 'org.glassfish.jersey.core:jersey-client:2.25.1'
+    compile 'com.couchbase.lite:couchbase-lite-android:1.4.0'
+
+    /*compile 'commons-validator:commons-validator:1.6'
+    compile 'org.glassfish.jersey.core:jersey-client:2.25.1'
+    compile 'org.glassfish.jersey.core:jersey-common:2.25.1'
+    compile 'javax.ws.rs:javax.ws.rs-api:2.0.1'
+    compile 'javax.validation:validation-api:1.1.0.Final'
+    compile 'org.osgi:org.osgi.core:4.2.0'
+    compile 'org.glassfish:javax.activation:3.0-b59'*/
+
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    //compile 'com.couchbase.lite:couchbase-lite-android:1.4.0'
+
+    //compile(name:'couchbase-lite-android-1.4.0', ext:'aar')
+    //compile(name:'couchbase-lite-android-sqlite-custom-1.4.0', ext:'aar')
+    compile 'com.android.support:design:25.3.1'
+    compile 'com.android.support:support-v4:25.3.1'
+    compile 'com.android.support:support-vector-drawable:25.3.1'
+    testCompile 'junit:junit:4.12'
+}

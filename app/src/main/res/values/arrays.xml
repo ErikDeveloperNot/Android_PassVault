@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Settings Activity password generator special character options -->
+    <string-array name="settings_activity_pass_gen_special_specify_entries">
+        <item>Question Mark (?)</item>
+        <item>At Sign (@)</item>
+        <item>Underscore (_)</item>
+        <item>Dollar Sign ($)</item>
+        <item>Ampersand Sign (&amp;)</item>
+        <item>Exclamation Mark (!)</item>
+        <item>Asterix (*)</item>
+        <item>Hyphen (-)</item>
+    </string-array>
+
+    <string-array name="settings_activity_pass_gen_special_specify_values">
+        <item>\?</item>
+        <item>\@</item>
+        <item>_</item>
+        <item>$</item>
+        <item>&amp;</item>
+        <item>!</item>
+        <item>*</item>
+        <item>-</item>
+    </string-array>
+
+
+    <!-- Settings Activity password generator length options -->
+    <string-array name="settings_activity_pass_gen_length_entries_and_values">
+        <item>8</item>
+        <item>16</item>
+        <item>24</item>
+        <item>32</item>
+        <item>64</item>
+    </string-array>
+
+    <!-- Settings Activity db revision history options -->
+    <string-array name="settings_activity_db_revision_entries_and_values">
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+        <item>20</item>
+    </string-array>
+
+    <!-- Setting Activity encryption key length -->
+    <string-array name="settings_activity_encryption_key_size_entries">
+        <item>128</item>
+        <item>192</item>
+        <item>256</item>
+    </string-array>
+    <string-array name="settings_activity_encryption_key_size_values">
+        <item>16</item>
+        <item>24</item>
+        <item>32</item>
+    </string-array>
+
+</resources>

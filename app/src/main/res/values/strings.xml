@@ -1,0 +1,200 @@
+<resources>
+    <string name="app_name">PassVault</string>
+
+    <!-- menu items -->
+    <string name="menu_settings">Settings</string>
+    <string name="menu_key">Change Key</string>
+    <string name="menu_sync">Sync Accounts</string>
+    <string name="menu_sync_free">free</string>
+    <string name="menu_sync_personal">personal</string>
+    <string name="menu_exit">Exit</string>
+    <!-- end -->
+
+    <!-- Delete Account Dialog items -->
+    <string name="delete_account_title">Delete Account</string>
+    <string name="delete_account_message">Confirm you wish to delete</string>
+    <string name="delete_account_ok">Ok</string>
+    <string name="delete_account_cancel">Cancel</string>
+    <!-- end -->
+
+    <!-- Expandable List Child Element items -->
+    <string name="expandable_list_edit">Edit Account</string>
+    <string name="expandable_list_delete">Delete Account</string>
+    <string name="expandable_list_pass">Copy Password to Clipboard</string>
+    <string name="expandable_list_old_pass">Copy prior Password to Clipboard</string>
+    <!-- end -->
+
+    <!-- Main Activity Buttons -->
+    <string name="main_activity_add_account_button">Add Account</string>
+    <string name="main_activity_clear_clipboard">Clear Clipboard</string>
+    <!-- end -->
+
+    <!-- Add Account Activity Items -->
+    <string name="add_account_activity_account_name">Account Name:</string>
+    <string name="add_account_activity_account_name_hint">Enter Account Name</string>
+    <string name="add_account_activity_user_name">User Name:</string>
+    <string name="add_account_activity_user_name_hint">Enter User Name</string>
+    <string name="add_account_activity_account_password">Password:</string>
+    <string name="add_account_activity_account_password_hint">Enter Password</string>
+    <string name="add_account_activity_create_button">Create Account</string>
+    <string name="add_account_activity_generate_password_button">Generate Password</string>
+    <string name="add_account_activity_override_default_button">Override Default Settings</string>
+    <!-- end -->
+
+    <!-- Edit Account Activity Items -->
+    <!-- Mostly Reuse Add Account, should be using Fragments I guess -->
+    <string name="update_account_activity_update_button">Update Account</string>
+    <string name="title_activity_login">Enter Encryption Key</string>
+    <!-- end -->
+
+    <!-- Strings related to login -->
+    <string name="login_activity_prompt_key">Encryption Key</string>
+    <string name="login_activity_action_sign_in">Submit</string>
+    <string name="login_activity_action_sign_in_short">Submit</string>
+    <string name="login_activity_error_incorrect_key">This Key is incorrect</string>
+    <string name="title_activity_settings">Settings</string>
+    <!-- end -->
+
+    <!-- Settings Activity Related Items -->
+    <!-- keys -->
+    <string name="GEN_OVERRIDE_KEY">GEN_OVERRIDE_KEY</string>
+    <string name="GEN_LENGTH_KEY">GEN_LENGTH_KEY</string>
+    <string name="GEN_LOWER_KEY">GEN_LOWER_KEY</string>
+    <string name="GEN_UPPER_KEY">GEN_UPPER_KEY</string>
+    <string name="GEN_DIGIT_KEY">GEN_DIGIT_KEY</string>
+    <string name="GEN_SPECIAL_KEY">GEN_SPECIAL_KEY</string>
+    <string name="GEN_SPECIAL_SPECIFY_KEY">GEN_SPECIAL_SPECIFY_KEY</string>
+    <string name="OVER_GEN_OVERRIDE_KEY">OVER_GEN_OVERRIDE_KEY</string>
+    <string name="OVER_GEN_LENGTH_KEY">OVER_GEN_LENGTH_KEY</string>
+    <string name="OVER_GEN_LOWER_KEY">OVER_GEN_LOWER_KEY</string>
+    <string name="OVER_GEN_UPPER_KEY">OVER_GEN_UPPER_KEY</string>
+    <string name="OVER_GEN_DIGIT_KEY">OVER_GEN_DIGIT_KEY</string>
+    <string name="OVER_GEN_SPECIAL_KEY">OVER_GEN_SPECIAL_KEY</string>
+    <string name="OVER_GEN_SPECIAL_SPECIFY_KEY">OVER_GEN_SPECIAL_SPECIFY_KEY</string>
+    <string name="DB_PURGE_ON_DELETE_KEY">DB_PURGE_ON_DELETE_KEY</string>
+    <string name="DB_REVISION_HISTORY_KEY">DB_REVISION_HISTORY_KEY</string>
+    <string name="DB_ALLOW_DELETE_KEY">DB_ALLOW_DELETE_KEY</string>
+    <string name="CLIP_NUMBER_REMOVE_KEY">CLIP_NUMBER_REMOVE_KEY</string>
+    <string name="ENCRYPTION_KEY_LENGTH_KEY">ENCRYPTION_KEY_LENGTH_KEY</string>
+    <string name="ACCOUNT_UUID_KEY">ACCOUNT_UUID_KEY</string>
+    <!-- end -->
+
+    <!-- default values -->
+    <string name="DEFAULT_CLIP_NUMBER">20</string>
+    <string name="DEFAULT_ENCRYPTION_KEY_LENGTH">32</string>
+    <string name="DEFAULT_OVERRIDE_GEN">false</string>
+    <string name="DEFAULT_LOWER_GEN">true</string>
+    <string name="DEFAULT_UPPER_GEN">true</string>
+    <string name="DEFAULT_SPECIAL_GEN">true</string>
+    <string name="DEFAULT_DIGIT_GEN">true</string>
+    <string name="DEFAULT_PASS_LENGTH">32</string>
+    <string name="DEFAULT_PURGE_DB">false</string>
+    <string name="DEFAULT_REV_DB">20</string>
+    <string name="DEFAULT_SYNC_URL">server.domain.com</string>
+    <string name="DEFAULT_SYNC_USER">user1</string>
+    <string name="DEFAULT_SYNC_BUCKET">passvault</string>
+    <string name="DEFAULT_SYNC_PORT">4984</string>
+    <string name="DEFAULT_SYNC_PROTOCOL">http</string>
+    <string name="DEFAULT_OVERRIDE_SYNC_CREDENTIALS">false</string>
+    <!-- end -->
+
+    <!-- general -->
+    <string name="settings_activity_general_options">General Options</string>
+    <string name="settings_activity_clipboard_delete_title">Number of Clipboard Entries to Delete</string>
+    <string name="settings_activity_clipboard_delete_summary">How many clipboard items to remove each time</string>
+    <string name="settings_activity_clipboard_delete_dialog">Enter a digit between 0 and 25</string>
+    <string name="settings_activity_clipboard_delete_error">Only digits between 0 and 25 are allowed, setting to 20</string>
+    <string name="settings_activity_encryption_key_length_title">Encryption Key Length</string>
+    <string name="settings_activity_encryption_key_length_summary">Size of the key used to encrypt passwords</string>
+    <string name="settings_activity_encryption_key_length_dialog">Choose encryption key length</string>
+    <!-- end -->
+
+    <!-- password generator -->
+    <string name="settings_activity_pass_gen">Password Generator Options</string>
+    <string name="settings_activity_pass_gen_title">Set Password Generator Options</string>
+    <string name="settings_activity_pass_gen_summary">Override the default password generator options</string>
+    <string name="settings_activity_pass_gen_override_title">Override Default Password Contraints</string>
+    <string name="settings_activity_pass_gen_override_summary">Specify custom contraints for generated passwords</string>
+    <string name="settings_activity_pass_gen_length_title">Password Length</string>
+    <string name="settings_activity_pass_gen_length_summary">Specify the length of generatred password</string>
+    <string name="settings_activity_pass_gen_length_dialog">Choose the length of generatred password</string>
+    <string name="settings_activity_pass_gen_lower_title">Contains Lowercase</string>
+    <string name="settings_activity_pass_gen_lower_summary">Password must contain lowercase letters</string>
+    <string name="settings_activity_pass_gen_upper_title">Contains Uppercase</string>
+    <string name="settings_activity_pass_gen_upper_summary">Password must contain uppercase letters</string>
+    <string name="settings_activity_pass_gen_digit_title">Contains Digits</string>
+    <string name="settings_activity_pass_gen_digit_summary">Password must contain digits</string>
+    <string name="settings_activity_pass_gen_special_title">Contains Special Characters</string>
+    <string name="settings_activity_pass_gen_special_summary">Password must special characters</string>
+    <string name="settings_activity_pass_gen_special_specify_title">Specify Special Characters</string>
+    <string name="settings_activity_pass_gen_special_specify_summary">Specify which special characters can be used</string>
+    <string name="settings_activity_pass_gen_special_specify_dialog">Select all the special characters to be allowed</string>
+    <!-- end -->
+
+    <!-- DB coinfig -->
+    <string name="settings_activity_db">Database Options</string>
+    <string name="settings_activity_db_title">Set Database Options</string>
+    <string name="settings_activity_db_summary">Override the default database options</string>
+    <string name="settings_activity_db_delete_title">Purge Account History</string>
+    <string name="settings_activity_db_delete_summary">When an account is deleted purge it from the database</string>
+    <string name="settings_activity_db_rev_title">Number of Account Revisions to keep</string>
+    <string name="settings_activity_db_rev_summary">When an account is updated how many revisions of prior accounts to keep</string>
+    <string name="settings_activity_db_rev_dialog">Select the number of account revisions to keep</string>
+    <!-- end -->
+
+    <!-- Sync coinfig -->
+    <string name="settings_activity_sync">Sync Gateway Options</string>
+    <string name="settings_activity_sync_title">Set Sync Gateway Options</string>
+    <string name="settings_activity_sync_summary">Set Sync Gateway options</string>
+    <string name="settings_activity_sync_config_title">Sync Gateway Configuration</string>
+    <string name="settings_activity_sync_config_summary">Setup Sync Gateway configurations</string>
+    <!-- end -->
+
+    <!-- change key itmes -->
+    <string name="dialog_change_key_title">Change Encryption Key</string>
+    <string name="dialog_change_key_enter_key">Enter a new encryption key</string>
+    <string name="dialog_change_key_enter_key_hint">enter a new key</string>
+    <string name="dialog_change_key_reenter_key">Reenter encryption key</string>
+    <string name="dialog_change_key_reenter_key_hint">reenter key</string>
+    <string name="dialog_change_key_enter_button">Enter</string>
+    <string name="dialog_change_key_cancel_button">Cancel</string>
+    <string name="dialog_change_key_keys_match">Keys Match</string>
+    <string name="dialog_change_key_keys_dont_match">Keys Don\'t Match</string>
+    <!-- end -->
+
+    <!-- sync free service items -->
+    <string name="title_activity_sync">SyncActivity</string>
+    <!-- testing -->
+    <!--string name="sync_free_registration_server">node1.user1.com:8443</string-->
+    <!-- production -->
+    <string name="sync_free_registration_server">ec2-52-53-254-139.us-west-1.compute.amazonaws.com:8443</string>
+    <string name="fragment_sync_free_no_account_dialog">In order to sync passwords with the free service an account is needed. In order to create an account enter a valid email address/password and click Create. If a account already exists for this email address enter it along with the existing password and click Configure.</string>
+    <string name="fragment_sync_free_existing_account_dialog">An account to sync with the free service is already configured. To delete the account on this device along with removing the account on the free service click Delete. To remove the account from this device but keep the account active on the free service click Remove.</string>
+    <string name="fragment_sync_free_email">Enter Valid Email Address</string>
+    <string name="fragment_sync_free_email_hint">enter valid Email address</string>
+    <string name="fragment_sync_free_pass">Enter Password</string>
+    <string name="fragment_sync_free_pass_hint">enter password</string>
+    <string name="fragment_sync_free_existing_account_left_button">Delete</string>
+    <string name="fragment_sync_free_existing_account_right_button">Remove</string>
+    <string name="fragment_sync_free_no_account_left_button">Create</string>
+    <string name="fragment_sync_free_no_account_right_button">Configure</string>
+    <!-- end -->
+
+    <!-- sync personal service items -->
+    <string name="fragment_sync_personal_dialog">In order to sync with a local server a Community Couchbase Sync Gateway needs to be setup, www.couchbase.com.</string>
+    <string name="fragment_sync_personal_server">Server Name/IP</string>
+    <string name="fragment_sync_personal_server_hint">sync gateway server Name/IP</string>
+    <string name="fragment_sync_personal_protocol">Protocol http/https</string>
+    <string name="fragment_sync_personal_protocol_hint">protocol http/https</string>
+    <string name="fragment_sync_personal_port">Port</string>
+    <string name="fragment_sync_personal_port_hint">port used by gync gateway</string>
+    <string name="fragment_sync_personal_database">Database</string>
+    <string name="fragment_sync_personal_database_hint">database name on sync gateway</string>
+    <string name="fragment_sync_personal_user">User Name</string>
+    <string name="fragment_sync_personal_user_hint">&lt;Optional&gt;, username if used</string>
+    <string name="fragment_sync_personal_pasword">Password</string>
+    <string name="fragment_sync_personal_password_hint">&lt;Optional&gt;, password if used</string>
+    <string name="fragment_sync_personal_left_button">Delete</string>
+    <string name="fragment_sync_personal_right_button">Save</string>
+    <!-- end -->
+</resources>
