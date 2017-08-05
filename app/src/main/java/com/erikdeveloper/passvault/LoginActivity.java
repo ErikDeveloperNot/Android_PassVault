@@ -1,4 +1,4 @@
-package com.developernot.passvault;
+package com.erikdeveloper.passvault;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -20,7 +20,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.developernot.passvault.couchbase.AndroidCBLStore;
+import com.erikdeveloper.passvault.couchbase.AndroidCBLStore;
 import com.passvault.crypto.AESEngine;
 import com.passvault.util.Account;
 
@@ -43,19 +43,19 @@ public class LoginActivity extends AppCompatActivity {
     // UI references.
     private EditText mPasswordView;
     private View mProgressView;
-    private View mLoginFormView;
+    //private View mLoginFormView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(com.developernot.passvault.R.layout.activity_login);
+        setContentView(com.erikdeveloper.passvault.R.layout.activity_login);
         // Set up the login form.
 
-        mPasswordView = (EditText) findViewById(com.developernot.passvault.R.id.login_activity_password);
+        mPasswordView = (EditText) findViewById(com.erikdeveloper.passvault.R.id.login_activity_password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == com.developernot.passvault.R.id.login || id == EditorInfo.IME_NULL) {
+                if (id == com.erikdeveloper.passvault.R.id.login || id == EditorInfo.IME_NULL) {
                     attemptLogin();
                     return true;
                 }
@@ -64,9 +64,9 @@ public class LoginActivity extends AppCompatActivity {
         });
 
 
-        mLoginFormView = findViewById(com.developernot.passvault.R.id.login_activity_form);
-        mProgressView = findViewById(com.developernot.passvault.R.id.login_activity_progress);
-        Button submitButton = (Button) findViewById(com.developernot.passvault.R.id.login_activity_sign_in_button);
+        //mLoginFormView = findViewById(com.developernot.passvault.R.id.login_activity_form);
+        mProgressView = findViewById(com.erikdeveloper.passvault.R.id.login_activity_progress);
+        Button submitButton = (Button) findViewById(com.erikdeveloper.passvault.R.id.login_activity_sign_in_button);
 
         submitButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -133,14 +133,14 @@ public class LoginActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            /*mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
             mLoginFormView.animate().setDuration(shortAnimTime).alpha(
                     show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
                 }
-            });
+            });*/
 
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
             mProgressView.animate().setDuration(shortAnimTime).alpha(
@@ -154,7 +154,7 @@ public class LoginActivity extends AppCompatActivity {
             // The ViewPropertyAnimator APIs are not available, so simply show
             // and hide the relevant UI components.
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            //mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
 
@@ -169,8 +169,8 @@ public class LoginActivity extends AppCompatActivity {
         UserLoginTask(String password) {
             try {
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
-                int length = Integer.parseInt(prefs.getString(getString(com.developernot.passvault.R.string.ENCRYPTION_KEY_LENGTH_KEY),
-                        getString(com.developernot.passvault.R.string.DEFAULT_ENCRYPTION_KEY_LENGTH)));
+                int length = Integer.parseInt(prefs.getString(getString(com.erikdeveloper.passvault.R.string.ENCRYPTION_KEY_LENGTH_KEY),
+                        getString(com.erikdeveloper.passvault.R.string.DEFAULT_ENCRYPTION_KEY_LENGTH)));
                 mPassword = AESEngine.finalizeKey(password, length);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -213,7 +213,7 @@ public class LoginActivity extends AppCompatActivity {
 
             } else {
                 AndroidCBLStore.destroyInstance();
-                mPasswordView.setError(getString(com.developernot.passvault.R.string.login_activity_error_incorrect_key));
+                mPasswordView.setError(getString(com.erikdeveloper.passvault.R.string.login_activity_error_incorrect_key));
                 mPasswordView.setText("");
                 mPasswordView.requestFocus();
             }

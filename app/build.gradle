@@ -5,23 +5,23 @@ android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
     defaultConfig {
-        applicationId "com.developernot.passvault"
+        applicationId "com.erikdeveloper.passvault"
         minSdkVersion 17
         //minSdkVersion 25
         targetSdkVersion 25
         versionCode 1
-        versionName "beta-1.0.1"
+        versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
         multiDexEnabled true
     }
-    buildTypes {
+    /*buildTypes {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-    }
+    }*/
 
     // workaround for "duplicate files during packaging of APK" issue:
     packagingOptions {
@@ -57,6 +57,10 @@ dependencies {
     compile 'commons-validator:commons-validator:1.6'
     compile 'org.glassfish.jersey.core:jersey-client:2.25.1'
     compile 'com.couchbase.lite:couchbase-lite-android:1.4.0'
+
+    compile 'org.glassfish.jersey.core:jersey-common:2.25.1'
+    compile 'org.osgi:org.osgi.core:4.2.0'
+    compile 'org.glassfish:javax.activation:3.0-b59'
 
     /*compile 'commons-validator:commons-validator:1.6'
     compile 'org.glassfish.jersey.core:jersey-client:2.25.1'

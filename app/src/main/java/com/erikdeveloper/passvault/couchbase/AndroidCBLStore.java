@@ -1,4 +1,4 @@
-package com.developernot.passvault.couchbase;
+package com.erikdeveloper.passvault.couchbase;
 
 import android.content.Context;
 import android.content.SharedPreferences;

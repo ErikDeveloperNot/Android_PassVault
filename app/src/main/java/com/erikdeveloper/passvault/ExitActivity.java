@@ -1,4 +1,4 @@
-package com.developernot.passvault;
+package com.erikdeveloper.passvault;
 
 import android.content.Context;
 import android.content.Intent;

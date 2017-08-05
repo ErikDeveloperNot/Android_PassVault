@@ -1,4 +1,4 @@
-package com.developernot.passvault;
+package com.erikdeveloper.passvault;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -10,8 +10,9 @@ import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
-import com.developernot.passvault.couchbase.AndroidCBLStore;
+import com.erikdeveloper.passvault.couchbase.AndroidCBLStore;
 import com.passvault.crypto.AESEngine;
 
 import java.util.Arrays;
@@ -54,7 +55,7 @@ public class SettingsActivity extends Activity implements SharedPreferences.OnSh
         Log.e(TAG, key);
 
 
-        if (key.equalsIgnoreCase(getString(com.developernot.passvault.R.string.CLIP_NUMBER_REMOVE_KEY))) {
+        if (key.equalsIgnoreCase(getString(com.erikdeveloper.passvault.R.string.CLIP_NUMBER_REMOVE_KEY))) {
             Log.e(TAG, key);
             int test;
 
@@ -64,7 +65,7 @@ public class SettingsActivity extends Activity implements SharedPreferences.OnSh
                 test = Integer.parseInt(sharedPreferences.getString(key, "20").trim());
             } catch (NumberFormatException e) {
                 sharedPreferences.edit().putString(key, "20").commit();
-                showAlertDialogIntentFailed("ERROR", getString(com.developernot.passvault.R.string.settings_activity_clipboard_delete_error));
+                showAlertDialogIntentFailed("ERROR", getString(com.erikdeveloper.passvault.R.string.settings_activity_clipboard_delete_error));
                 test = 20;
             }
 
@@ -72,31 +73,31 @@ public class SettingsActivity extends Activity implements SharedPreferences.OnSh
             if (test > 25)
                 sharedPreferences.edit().putString(key, "20").commit();
 
-        } else if (key.equalsIgnoreCase(getString(com.developernot.passvault.R.string.GEN_OVERRIDE_KEY))) {
-            boolean on = sharedPreferences.getBoolean(key, Boolean.valueOf(getString(com.developernot.passvault.R.string.DEFAULT_OVERRIDE_GEN)));
+        } else if (key.equalsIgnoreCase(getString(com.erikdeveloper.passvault.R.string.GEN_OVERRIDE_KEY))) {
+            boolean on = sharedPreferences.getBoolean(key, Boolean.valueOf(getString(com.erikdeveloper.passvault.R.string.DEFAULT_OVERRIDE_GEN)));
             Log.e(TAG, ">> on=" + on);
             if (!on) {
                 //make sure to reset to defaults
                 SharedPreferences.Editor edit = sharedPreferences.edit();
-                edit.putBoolean(getString(com.developernot.passvault.R.string.GEN_LOWER_KEY),
-                        Boolean.valueOf(getString(com.developernot.passvault.R.string.DEFAULT_LOWER_GEN)));
-                edit.putBoolean(getString(com.developernot.passvault.R.string.GEN_UPPER_KEY),
-                        Boolean.valueOf(getString(com.developernot.passvault.R.string.DEFAULT_UPPER_GEN)));
-                edit.putBoolean(getString(com.developernot.passvault.R.string.GEN_DIGIT_KEY),
-                        Boolean.valueOf(getString(com.developernot.passvault.R.string.DEFAULT_DIGIT_GEN)));
-                edit.putBoolean(getString(com.developernot.passvault.R.string.GEN_SPECIAL_KEY),
-                        Boolean.valueOf(getString(com.developernot.passvault.R.string.DEFAULT_SPECIAL_GEN)));
-                edit.putString(getString(com.developernot.passvault.R.string.GEN_LENGTH_KEY),
-                        getString(com.developernot.passvault.R.string.DEFAULT_PASS_LENGTH));
-                edit.putStringSet(getString(com.developernot.passvault.R.string.GEN_SPECIAL_SPECIFY_KEY),
+                edit.putBoolean(getString(com.erikdeveloper.passvault.R.string.GEN_LOWER_KEY),
+                        Boolean.valueOf(getString(com.erikdeveloper.passvault.R.string.DEFAULT_LOWER_GEN)));
+                edit.putBoolean(getString(com.erikdeveloper.passvault.R.string.GEN_UPPER_KEY),
+                        Boolean.valueOf(getString(com.erikdeveloper.passvault.R.string.DEFAULT_UPPER_GEN)));
+                edit.putBoolean(getString(com.erikdeveloper.passvault.R.string.GEN_DIGIT_KEY),
+                        Boolean.valueOf(getString(com.erikdeveloper.passvault.R.string.DEFAULT_DIGIT_GEN)));
+                edit.putBoolean(getString(com.erikdeveloper.passvault.R.string.GEN_SPECIAL_KEY),
+                        Boolean.valueOf(getString(com.erikdeveloper.passvault.R.string.DEFAULT_SPECIAL_GEN)));
+                edit.putString(getString(com.erikdeveloper.passvault.R.string.GEN_LENGTH_KEY),
+                        getString(com.erikdeveloper.passvault.R.string.DEFAULT_PASS_LENGTH));
+                edit.putStringSet(getString(com.erikdeveloper.passvault.R.string.GEN_SPECIAL_SPECIFY_KEY),
                         new TreeSet<String>(Arrays.asList(getResources().
-                                getStringArray(com.developernot.passvault.R.array.settings_activity_pass_gen_special_specify_values))));
+                                getStringArray(com.erikdeveloper.passvault.R.array.settings_activity_pass_gen_special_specify_values))));
                 edit.commit();
             }
-        } else if (key.equalsIgnoreCase(getString(com.developernot.passvault.R.string.ENCRYPTION_KEY_LENGTH_KEY))) {
+        } else if (key.equalsIgnoreCase(getString(com.erikdeveloper.passvault.R.string.ENCRYPTION_KEY_LENGTH_KEY))) {
             String currentKey = AndroidCBLStore.getInstance().getEncryptionKey();
-            int keyLength = Integer.parseInt(sharedPreferences.getString(getString(com.developernot.passvault.R.string.ENCRYPTION_KEY_LENGTH_KEY),
-                    getString(com.developernot.passvault.R.string.DEFAULT_ENCRYPTION_KEY_LENGTH)));
+            int keyLength = Integer.parseInt(sharedPreferences.getString(getString(com.erikdeveloper.passvault.R.string.ENCRYPTION_KEY_LENGTH_KEY),
+                    getString(com.erikdeveloper.passvault.R.string.DEFAULT_ENCRYPTION_KEY_LENGTH)));
             
             if (currentKey.length() != keyLength) {
                 //new keylength doesnt match old, finalize are encrypt accounts 
@@ -107,7 +108,7 @@ public class SettingsActivity extends Activity implements SharedPreferences.OnSh
                     AndroidCBLStore.getInstance().saveAccounts(MainActivity.getAccounts());
                 } catch (Exception e) {
                     SharedPreferences.Editor edit = sharedPreferences.edit();
-                    edit.putString(getString(com.developernot.passvault.R.string.ENCRYPTION_KEY_LENGTH_KEY), String.valueOf(currentKey.length()));
+                    edit.putString(getString(com.erikdeveloper.passvault.R.string.ENCRYPTION_KEY_LENGTH_KEY), String.valueOf(currentKey.length()));
                     edit.commit();
                     e.printStackTrace();
                     showAlertDialogIntentFailed("ERROR", "Failed to change Encryption key size");
@@ -125,12 +126,19 @@ public class SettingsActivity extends Activity implements SharedPreferences.OnSh
             super.onCreate(savedInstanceState);
 
             // Load the preferences from an XML resource
-            addPreferencesFromResource(com.developernot.passvault.R.xml.preferences);
+            addPreferencesFromResource(com.erikdeveloper.passvault.R.xml.preferences);
         }
     }
 
 
     private void showAlertDialogIntentFailed(String title, String message) {
+
+        // check for android.view.WindowManager$BadTokenException: Unable to add window — token android.os.BinderProxy@
+        if (SettingsActivity.this.isFinishing() || SettingsActivity.this.isDestroyed()) {
+            Toast.makeText(SettingsActivity.this, message, Toast.LENGTH_LONG).show();
+            return;
+        }
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setMessage(message)

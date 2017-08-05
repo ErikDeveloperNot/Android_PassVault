@@ -1,4 +1,4 @@
-package com.developernot.passvault;
+package com.erikdeveloper.passvault;
 
 import android.app.Activity;
 import android.app.FragmentManager;
@@ -32,7 +32,7 @@ public class PasswordGeneratorOptionsActivity extends Activity {
             super.onCreate(savedInstanceState);
 
             // Load the preferences from an XML resource
-            addPreferencesFromResource(com.developernot.passvault.R.xml.password_gen);
+            addPreferencesFromResource(com.erikdeveloper.passvault.R.xml.password_gen);
         }
     }
 }

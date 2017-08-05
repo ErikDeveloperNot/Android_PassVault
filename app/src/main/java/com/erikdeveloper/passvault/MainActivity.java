@@ -1,4 +1,4 @@
-package com.developernot.passvault;
+package com.erikdeveloper.passvault;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -24,7 +24,7 @@ import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.developernot.passvault.couchbase.AndroidCBLStore;
+import com.erikdeveloper.passvault.couchbase.AndroidCBLStore;
 import com.passvault.crypto.AESEngine;
 import com.passvault.util.Account;
 import com.passvault.util.couchbase.AccountsChanged;
@@ -55,12 +55,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(com.developernot.passvault.R.layout.activity_main);
-        accountListView = (ExpandableListView) findViewById(com.developernot.passvault.R.id.account_list_view);
-        Button addAccountButton = (Button) findViewById(com.developernot.passvault.R.id.button_add_account);
-        addAccountButton.setText(com.developernot.passvault.R.string.main_activity_add_account_button);
-        final Button clearClipboardButton = (Button) findViewById(com.developernot.passvault.R.id.button_clear_clipboard);
-        clearClipboardButton.setText(com.developernot.passvault.R.string.main_activity_clear_clipboard);
+        setContentView(com.erikdeveloper.passvault.R.layout.activity_main);
+        accountListView = (ExpandableListView) findViewById(com.erikdeveloper.passvault.R.id.account_list_view);
+        Button addAccountButton = (Button) findViewById(com.erikdeveloper.passvault.R.id.button_add_account);
+        addAccountButton.setText(com.erikdeveloper.passvault.R.string.main_activity_add_account_button);
+        final Button clearClipboardButton = (Button) findViewById(com.erikdeveloper.passvault.R.id.button_clear_clipboard);
+        clearClipboardButton.setText(com.erikdeveloper.passvault.R.string.main_activity_clear_clipboard);
 
         clipboard = (ClipboardManager) getSystemService(this.CLIPBOARD_SERVICE);
 
@@ -160,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(com.developernot.passvault.R.menu.main_menu, menu);
+        inflater.inflate(com.erikdeveloper.passvault.R.menu.main_menu, menu);
         menu.getItem(1).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
@@ -191,23 +191,23 @@ public class MainActivity extends AppCompatActivity {
 
         // Handle item selection
         switch (item.getItemId()) {
-            case com.developernot.passvault.R.id.menu_settings:
+            case com.erikdeveloper.passvault.R.id.menu_settings:
                 Intent settingsIntent = new Intent(this, SettingsActivity.class);
                 startActivity(settingsIntent);
                 return true;
             /*case com.developernot.passvault.R.id.menu_sync:
                 syncPasswords();
                 return true;*/
-            case com.developernot.passvault.R.id.menu_sync_free:
+            case com.erikdeveloper.passvault.R.id.menu_sync_free:
                 syncPasswords(SyncActivity.GatewayType.Remote);
                 return true;
-            case com.developernot.passvault.R.id.menu_sync_personal:
+            case com.erikdeveloper.passvault.R.id.menu_sync_personal:
                 syncPasswords(SyncActivity.GatewayType.Local);
                 return true;
-            case com.developernot.passvault.R.id.menu_key:
+            case com.erikdeveloper.passvault.R.id.menu_key:
                 showChangeKeyDialog();
                 return true;
-            case com.developernot.passvault.R.id.menu_exit:
+            case com.erikdeveloper.passvault.R.id.menu_exit:
                 clearClipBoard();
                 ExitActivity.exitApplication(this);
                 //finish();
@@ -234,7 +234,11 @@ public class MainActivity extends AppCompatActivity {
                 Collections.sort(accounts);
                 ((AccountExpandableListAdapter) accountListView.getExpandableListAdapter()).notifyDataSetChanged();
             } else {
-                showAlertDialogIntentFailed("Add Account Error", "Failed to Add Account");
+                // check for android.view.WindowManager$BadTokenException: Unable to add window — token android.os.BinderProxy@
+                if (MainActivity.this.isFinishing() || MainActivity.this.isDestroyed())
+                    Toast.makeText(MainActivity.this, "Failed to Add Account", Toast.LENGTH_LONG).show();
+                else
+                    showAlertDialogIntentFailed("Add Account Error", "Failed to Add Account");
             }
 
         } else if (requestCode == UPDATE_ACCOUNT_CODE) {
@@ -243,7 +247,11 @@ public class MainActivity extends AppCompatActivity {
                 Collections.sort(accounts);
                 ((AccountExpandableListAdapter) accountListView.getExpandableListAdapter()).notifyDataSetChanged();
             } else {
-                showAlertDialogIntentFailed("Update Account Error", "Failed to Update Account");
+                // check for android.view.WindowManager$BadTokenException: Unable to add window — token android.os.BinderProxy@
+                if (MainActivity.this.isFinishing() || MainActivity.this.isDestroyed())
+                    Toast.makeText(MainActivity.this, "Failed to Update Account", Toast.LENGTH_LONG).show();
+                else
+                    showAlertDialogIntentFailed("Update Account Error", "Failed to Update Account");
             }
 
         }
@@ -295,9 +303,9 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setMessage("Confirm you wish to delete: " + account.getName())
-                .setTitle(com.developernot.passvault.R.string.delete_account_title);
+                .setTitle(com.erikdeveloper.passvault.R.string.delete_account_title);
 
-        builder.setPositiveButton(com.developernot.passvault.R.string.delete_account_ok, new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(com.erikdeveloper.passvault.R.string.delete_account_ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 accountListView.collapseGroup(position);
                 //remove account from UI
@@ -311,7 +319,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        builder.setNegativeButton(com.developernot.passvault.R.string.delete_account_cancel, new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(com.erikdeveloper.passvault.R.string.delete_account_cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // do nothing
             }
@@ -569,24 +577,24 @@ public class MainActivity extends AppCompatActivity {
 
     private void showChangeKeyDialog() {
         final Dialog dialog = new Dialog(this);
-        dialog.setContentView(com.developernot.passvault.R.layout.dialog_change_key);
+        dialog.setContentView(com.erikdeveloper.passvault.R.layout.dialog_change_key);
         dialog.setCancelable(true);
         dialog.setCanceledOnTouchOutside(true);
-        dialog.setTitle(com.developernot.passvault.R.string.dialog_change_key_title);
-        final TextView statusView = (TextView) dialog.findViewById(com.developernot.passvault.R.id.dialog_change_key_status_textview);
-        final EditText enterKeyEditText = (EditText) dialog.findViewById(com.developernot.passvault.R.id.dialog_change_key_enter_key_edittext);
-        final EditText reenterKeyEditText = (EditText) dialog.findViewById(com.developernot.passvault.R.id.dialog_change_key_reenter_key_edittext);
-        Button enterButton = (Button) dialog.findViewById(com.developernot.passvault.R.id.dialog_change_key_enter_button);
-        Button cancelButton = (Button) dialog.findViewById(com.developernot.passvault.R.id.dialog_change_key_cancel_button);
+        dialog.setTitle(com.erikdeveloper.passvault.R.string.dialog_change_key_title);
+        final TextView statusView = (TextView) dialog.findViewById(com.erikdeveloper.passvault.R.id.dialog_change_key_status_textview);
+        final EditText enterKeyEditText = (EditText) dialog.findViewById(com.erikdeveloper.passvault.R.id.dialog_change_key_enter_key_edittext);
+        final EditText reenterKeyEditText = (EditText) dialog.findViewById(com.erikdeveloper.passvault.R.id.dialog_change_key_reenter_key_edittext);
+        Button enterButton = (Button) dialog.findViewById(com.erikdeveloper.passvault.R.id.dialog_change_key_enter_button);
+        Button cancelButton = (Button) dialog.findViewById(com.erikdeveloper.passvault.R.id.dialog_change_key_cancel_button);
 
         class MyFocusChangeListerner implements View.OnFocusChangeListener {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
                     if (enterKeyEditText.getText().toString().equals(reenterKeyEditText.getText().toString()))
-                        statusView.setText(com.developernot.passvault.R.string.dialog_change_key_keys_match);
+                        statusView.setText(com.erikdeveloper.passvault.R.string.dialog_change_key_keys_match);
                     else
-                        statusView.setText(com.developernot.passvault.R.string.dialog_change_key_keys_dont_match);
+                        statusView.setText(com.erikdeveloper.passvault.R.string.dialog_change_key_keys_dont_match);
                 }
             }
         }
@@ -604,9 +612,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 if (enterKeyEditText.getText().toString().equals(reenterKeyEditText.getText().toString()))
-                    statusView.setText(com.developernot.passvault.R.string.dialog_change_key_keys_match);
+                    statusView.setText(com.erikdeveloper.passvault.R.string.dialog_change_key_keys_match);
                 else
-                    statusView.setText(com.developernot.passvault.R.string.dialog_change_key_keys_dont_match);
+                    statusView.setText(com.erikdeveloper.passvault.R.string.dialog_change_key_keys_dont_match);
             }
         }
 
@@ -624,8 +632,8 @@ public class MainActivity extends AppCompatActivity {
                 if (enterKeyEditText.getText().toString().equals(reenterKeyEditText.getText().toString())) {
                     try {
                         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-                        int length = Integer.parseInt(prefs.getString(getString(com.developernot.passvault.R.string.ENCRYPTION_KEY_LENGTH_KEY),
-                                getString(com.developernot.passvault.R.string.DEFAULT_ENCRYPTION_KEY_LENGTH)));
+                        int length = Integer.parseInt(prefs.getString(getString(com.erikdeveloper.passvault.R.string.ENCRYPTION_KEY_LENGTH_KEY),
+                                getString(com.erikdeveloper.passvault.R.string.DEFAULT_ENCRYPTION_KEY_LENGTH)));
                         String finalKey = AESEngine.finalizeKey(enterKeyEditText.getText().toString(), length);
                         Log.e(TAG, "finalKey=" + finalKey);
                         AndroidCBLStore.getInstance().setEncryptionKey(finalKey);

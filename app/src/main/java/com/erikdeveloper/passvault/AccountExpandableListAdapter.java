@@ -1,4 +1,4 @@
-package com.developernot.passvault;
+package com.erikdeveloper.passvault;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -66,13 +66,13 @@ public class AccountExpandableListAdapter extends BaseExpandableListAdapter {
             case NAME:
                 return accounts.get(groupPosition).getUser();
             case PASS:
-                return com.developernot.passvault.R.string.expandable_list_pass;
+                return com.erikdeveloper.passvault.R.string.expandable_list_pass;
             case OLD_PASS:
-                return com.developernot.passvault.R.string.expandable_list_old_pass;
+                return com.erikdeveloper.passvault.R.string.expandable_list_old_pass;
             case EDIT:
-                return com.developernot.passvault.R.string.expandable_list_edit;
+                return com.erikdeveloper.passvault.R.string.expandable_list_edit;
             case DELETE:
-                return com.developernot.passvault.R.string.expandable_list_delete;
+                return com.erikdeveloper.passvault.R.string.expandable_list_delete;
             default:
                 return "";
         }
@@ -97,10 +97,10 @@ public class AccountExpandableListAdapter extends BaseExpandableListAdapter {
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
 
         if (convertView == null) {
-            convertView = inflater.inflate(com.developernot.passvault.R.layout.account_list_view_group, parent, false);
+            convertView = inflater.inflate(com.erikdeveloper.passvault.R.layout.account_list_view_group, parent, false);
         }
 
-        TextView accountNameView = (TextView) convertView.findViewById(com.developernot.passvault.R.id.account_list_view_name);
+        TextView accountNameView = (TextView) convertView.findViewById(com.erikdeveloper.passvault.R.id.account_list_view_name);
 
         Account account = (Account) accounts.get(groupPosition);
         accountNameView.setTypeface(null, Typeface.BOLD);
@@ -113,26 +113,26 @@ public class AccountExpandableListAdapter extends BaseExpandableListAdapter {
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
 
         if (convertView == null) {
-            convertView = inflater.inflate(com.developernot.passvault.R.layout.account_list_view_item, parent, false);
+            convertView = inflater.inflate(com.erikdeveloper.passvault.R.layout.account_list_view_item, parent, false);
         }
 
-        TextView accountItemView = (TextView) convertView.findViewById(com.developernot.passvault.R.id.account_list_view_item);
+        TextView accountItemView = (TextView) convertView.findViewById(com.erikdeveloper.passvault.R.id.account_list_view_item);
 
         switch (childPosition) {
             case NAME:
                 accountItemView.setText("Username: " + accounts.get(groupPosition).getUser());
                 break;
             case PASS:
-                accountItemView.setText(com.developernot.passvault.R.string.expandable_list_pass);
+                accountItemView.setText(com.erikdeveloper.passvault.R.string.expandable_list_pass);
                 break;
             case OLD_PASS:
-                accountItemView.setText(com.developernot.passvault.R.string.expandable_list_old_pass);
+                accountItemView.setText(com.erikdeveloper.passvault.R.string.expandable_list_old_pass);
                 break;
             case EDIT:
-                accountItemView.setText(com.developernot.passvault.R.string.expandable_list_edit);
+                accountItemView.setText(com.erikdeveloper.passvault.R.string.expandable_list_edit);
                 break;
             case DELETE:
-                accountItemView.setText(com.developernot.passvault.R.string.expandable_list_delete);
+                accountItemView.setText(com.erikdeveloper.passvault.R.string.expandable_list_delete);
                 break;
             default:
                 accountItemView.setText("");

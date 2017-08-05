@@ -58,7 +58,7 @@
             android:summary="@string/settings_activity_pass_gen_summary"
             android:dependency="@string/GEN_OVERRIDE_KEY">
 
-            <intent android:action="com.developernot.passvault.PasswordGeneratorOptionsActivity"/>
+            <intent android:action="com.erikdeveloper.passvault.PasswordGeneratorOptionsActivity"/>
 
             <!--SwitchPreference
                 android:defaultValue="@string/DEFAULT_LOWER_GEN"
@@ -152,8 +152,9 @@
         <PreferenceScreen
             android:title="@string/settings_activity_sync_config_title"
             android:summary="@string/settings_activity_sync_config_summary">
-            <intent android:action="com.developernot.passvault.SyncActivity"/>
+            <intent android:action="com.erikdeveloper.passvault.SyncActivity"/>
         </PreferenceScreen>
+
 
         <!--EditTextPreference
             android:key="@string/SYNC_URL_KEY"

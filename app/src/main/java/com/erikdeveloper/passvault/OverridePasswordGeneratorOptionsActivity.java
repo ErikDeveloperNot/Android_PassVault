@@ -1,4 +1,4 @@
-package com.developernot.passvault;
+package com.erikdeveloper.passvault;
 
 import android.app.Activity;
 import android.app.FragmentManager;
@@ -36,7 +36,7 @@ public class OverridePasswordGeneratorOptionsActivity extends Activity {
             super.onCreate(savedInstanceState);
 
             // Load the preferences from an XML resource
-            addPreferencesFromResource(com.developernot.passvault.R.xml.over_ride_password_gen);
+            addPreferencesFromResource(com.erikdeveloper.passvault.R.xml.over_ride_password_gen);
         }
     }
 }
