@@ -42,6 +42,7 @@ public class AddAccountActivity extends Activity {
         final EditText accountNameEditText = (EditText) findViewById(com.erikdeveloper.passvault.R.id.add_account_activity_account_name_edittext);
         final EditText accountUserEditText = (EditText) findViewById(com.erikdeveloper.passvault.R.id.add_account_activity_user_name_edittext);
         final EditText accountPassEditText = (EditText) findViewById(com.erikdeveloper.passvault.R.id.add_account_activity_account_password_edittext);
+        final EditText accountURLEditTest = (EditText) findViewById(R.id.add_account_activity_url_edittext);
         Button generatePassButton = (Button) findViewById(com.erikdeveloper.passvault.R.id.add_account_activity_generate_password_button);
         Button overridePassButton = (Button) findViewById(com.erikdeveloper.passvault.R.id.add_account_activity_override_default_button);
         Button createAccountButton = (Button) findViewById(com.erikdeveloper.passvault.R.id.add_account_activity_create_button);
@@ -52,6 +53,7 @@ public class AddAccountActivity extends Activity {
                 String accountName = accountNameEditText.getText().toString();
                 String accountUser = accountUserEditText.getText().toString();
                 String accountPass = accountPassEditText.getText().toString();
+                String accountURL = accountURLEditTest.getText().toString();
                 String accountUUID = PreferenceManager
                         .getDefaultSharedPreferences(AddAccountActivity.this)
                         .getString("ACCOUNT_UUID_KEY", "");
@@ -63,7 +65,7 @@ public class AddAccountActivity extends Activity {
                 }
 
                 Account account = new Account(accountName, accountUser, accountPass, accountPass,
-                        accountUUID, System.currentTimeMillis());
+                        accountUUID, System.currentTimeMillis(), accountURL);
 
                 accounts.add(account);
                 AndroidCBLStore.getInstance().saveAccount(account);

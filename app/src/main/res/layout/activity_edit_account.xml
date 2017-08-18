@@ -7,7 +7,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin">
 
-    <TextView
+    <!--TextView
         android:id="@+id/add_account_activity_account_name_textview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -15,7 +15,7 @@
         android:layout_weight="1"
         android:gravity="center"
         android:text="@string/add_account_activity_account_name"
-        android:textSize="18sp" />
+        android:textSize="18sp" /-->
 
     <EditText
         android:id="@+id/add_account_activity_account_name_edittext"
@@ -28,14 +28,14 @@
         android:editable="false"
         android:singleLine="true" />
 
-    <TextView
+    <!--TextView
         android:id="@+id/add_account_activity_user_name_textview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center"
         android:text="@string/add_account_activity_user_name"
-        android:textSize="18sp" />
+        android:textSize="18sp" /-->
 
     <EditText
         android:id="@+id/add_account_activity_user_name_edittext"
@@ -47,14 +47,25 @@
         android:nextFocusDown="@+id/add_account_activity_generate_password_button"
         android:singleLine="true" />
 
-    <TextView
+
+    <EditText
+        android:id="@+id/add_account_activity_url_edittext"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:hint="@string/add_account_activity_url_hint"
+        android:nextFocusDown="@+id/add_account_activity_generate_password_button"
+        android:singleLine="true" />
+
+    <!--TextView
         android:id="@+id/add_account_activity_account_password_textview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center"
         android:text="@string/add_account_activity_account_password"
-        android:textSize="18sp" />
+        android:textSize="18sp" /-->
 
     <EditText
         android:id="@+id/add_account_activity_account_password_edittext"
@@ -74,7 +85,7 @@
         <Button
             android:id="@+id/add_account_activity_generate_password_button"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="@string/add_account_activity_generate_password_button"/>
         <!--android:nextFocusDown="@id/add_account_activity_create_button"/-->
@@ -82,7 +93,7 @@
         <Button
             android:id="@+id/add_account_activity_override_default_button"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="@string/add_account_activity_override_default_button"
             android:nextFocusLeft="@id/add_account_activity_generate_password_button"/>

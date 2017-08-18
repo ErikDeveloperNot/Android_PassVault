@@ -11,6 +11,12 @@
             android:dialogTitle="@string/settings_activity_clipboard_delete_dialog"
             android:defaultValue="@string/DEFAULT_CLIP_NUMBER"/>
 
+        <SwitchPreference
+            android:key="@string/SAVE_KEY_KEY"
+            android:defaultValue="@string/SAVE_KEY"
+            android:title="@string/settings_activity_save_key_title"
+            android:summary="@string/settings_activity_save_key_summary"/>
+
         <!--ListPreference
             android:key="@string/ENCRYPTION_KEY_LENGTH_KEY"
             android:title="@string/settings_activity_encryption_key_length_title"

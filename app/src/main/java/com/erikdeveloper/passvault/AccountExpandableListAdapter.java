@@ -1,6 +1,7 @@
 package com.erikdeveloper.passvault;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,12 +30,13 @@ public class AccountExpandableListAdapter extends BaseExpandableListAdapter {
     private ArrayList<Account> accounts;
     private Context context;
     private LayoutInflater inflater;
-    private final int FIELD_COUNT = 5;
+    private final int FIELD_COUNT = 6;
     public static final int NAME = 0;
     public static final int PASS = 1;
     public static final int OLD_PASS = 2;
-    public static final int EDIT = 3;
-    public static final int DELETE = 4;
+    public static final int LAUNCH_URL = 3;
+    public static final int EDIT = 4;
+    public static final int DELETE = 5;
 
 
     public AccountExpandableListAdapter(Context context, ArrayList<Account> accounts) {
@@ -73,6 +75,8 @@ public class AccountExpandableListAdapter extends BaseExpandableListAdapter {
                 return com.erikdeveloper.passvault.R.string.expandable_list_edit;
             case DELETE:
                 return com.erikdeveloper.passvault.R.string.expandable_list_delete;
+            case LAUNCH_URL:
+                return "Copy Password and Launch Browser";
             default:
                 return "";
         }
@@ -117,10 +121,14 @@ public class AccountExpandableListAdapter extends BaseExpandableListAdapter {
         }
 
         TextView accountItemView = (TextView) convertView.findViewById(com.erikdeveloper.passvault.R.id.account_list_view_item);
+        accountItemView.setTextColor(Color.DKGRAY);
+        accountItemView.setTypeface(null, Typeface.NORMAL);
 
         switch (childPosition) {
             case NAME:
                 accountItemView.setText("Username: " + accounts.get(groupPosition).getUser());
+                accountItemView.setTextColor(Color.BLACK);
+                //accountItemView.setTypeface(null, Typeface.BOLD);
                 break;
             case PASS:
                 accountItemView.setText(com.erikdeveloper.passvault.R.string.expandable_list_pass);
@@ -133,6 +141,15 @@ public class AccountExpandableListAdapter extends BaseExpandableListAdapter {
                 break;
             case DELETE:
                 accountItemView.setText(com.erikdeveloper.passvault.R.string.expandable_list_delete);
+                break;
+            case LAUNCH_URL:
+                accountItemView.setText("Copy Password and Launch Browser");
+
+                if (accounts.get(groupPosition).getUrl().equalsIgnoreCase("http://")) {
+                    accountItemView.setTextColor(Color.LTGRAY);
+                    accountItemView.setTypeface(null, Typeface.ITALIC);
+                }
+
                 break;
             default:
                 accountItemView.setText("");

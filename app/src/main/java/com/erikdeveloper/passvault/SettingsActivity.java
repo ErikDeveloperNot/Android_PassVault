@@ -114,6 +114,15 @@ public class SettingsActivity extends Activity implements SharedPreferences.OnSh
                     showAlertDialogIntentFailed("ERROR", "Failed to change Encryption key size");
                 }
             }
+        } else if (key.equalsIgnoreCase(getString(R.string.SAVE_KEY_KEY))) {
+
+            if (sharedPreferences.getBoolean(getString(R.string.SAVE_KEY_KEY), false)) {
+                sharedPreferences.edit().putString(getString(R.string.PASSWORD_KEY), AndroidCBLStore.getInstance().getEncryptionKey()).commit();
+                Log.e(TAG, "Saving Key");
+            } else {
+                sharedPreferences.edit().putString(getString(R.string.PASSWORD_KEY), "").commit();
+                Log.e(TAG, "Removed Key");
+            }
         }
 
     }

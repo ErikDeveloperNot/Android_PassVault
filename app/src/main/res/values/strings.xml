@@ -34,6 +34,8 @@
     <string name="add_account_activity_account_name_hint">Enter Account Name</string>
     <string name="add_account_activity_user_name">User Name:</string>
     <string name="add_account_activity_user_name_hint">Enter User Name</string>
+    <string name="add_account_activity_url">Site URL:</string>
+    <string name="add_account_activity_url_hint">Enter URL &lt;optional&gt;</string>
     <string name="add_account_activity_account_password">Password:</string>
     <string name="add_account_activity_account_password_hint">Enter Password</string>
     <string name="add_account_activity_create_button">Create Account</string>
@@ -78,6 +80,8 @@
     <string name="ENCRYPTION_KEY_LENGTH_KEY">ENCRYPTION_KEY_LENGTH_KEY</string>
     <string name="ACCOUNT_UUID_KEY">ACCOUNT_UUID_KEY</string>
     <string name="REG_SERVER_KEY">REG_SERVER_KEY</string>
+    <string name="SAVE_KEY_KEY">SAVE_KEY_KEY</string>
+    <string name="PASSWORD_KEY">PASSWORD_KEY</string>
     <!-- end -->
 
     <!-- default values -->
@@ -97,6 +101,7 @@
     <string name="DEFAULT_SYNC_PORT">4984</string>
     <string name="DEFAULT_SYNC_PROTOCOL">http</string>
     <string name="DEFAULT_OVERRIDE_SYNC_CREDENTIALS">false</string>
+    <string name="SAVE_KEY">false</string>
     <!-- end -->
 
     <!-- general -->
@@ -108,6 +113,8 @@
     <string name="settings_activity_encryption_key_length_title">Encryption Key Length</string>
     <string name="settings_activity_encryption_key_length_summary">Size of the key used to encrypt passwords</string>
     <string name="settings_activity_encryption_key_length_dialog">Choose encryption key length</string>
+    <string name="settings_activity_save_key_title">Save Encryption Key</string>
+    <string name="settings_activity_save_key_summary">Save encryption key so it doesn\'t need to typed at start up. NOT Recommended!!</string>
     <!-- end -->
 
     <!-- password generator -->

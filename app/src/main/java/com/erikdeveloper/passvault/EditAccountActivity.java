@@ -39,6 +39,7 @@ public class EditAccountActivity extends Activity {
         final EditText accountNameEditText = (EditText) findViewById(com.erikdeveloper.passvault.R.id.add_account_activity_account_name_edittext);
         final EditText accountUserEditText = (EditText) findViewById(com.erikdeveloper.passvault.R.id.add_account_activity_user_name_edittext);
         final EditText accountPassEditText = (EditText) findViewById(com.erikdeveloper.passvault.R.id.add_account_activity_account_password_edittext);
+        final EditText accountURLEditText = (EditText) findViewById(R.id.add_account_activity_url_edittext);
         Button generatePassButton = (Button) findViewById(com.erikdeveloper.passvault.R.id.add_account_activity_generate_password_button);
         Button overridePassButton = (Button) findViewById(com.erikdeveloper.passvault.R.id.add_account_activity_override_default_button);
         Button updateAccountButton = (Button) findViewById(com.erikdeveloper.passvault.R.id.update_account_activity_update_button);
@@ -52,6 +53,9 @@ public class EditAccountActivity extends Activity {
         accountNameEditText.setText(account.getName());
         accountUserEditText.setText(account.getUser());
         accountPassEditText.setText(account.getPass());
+
+        if (!account.getUrl().equalsIgnoreCase("http://"))
+            accountURLEditText.setText(account.getUrl());
 
         updateAccountButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,6 +73,7 @@ public class EditAccountActivity extends Activity {
                 account.setName(accountNameEditText.getText().toString());
                 account.setUser(accountUserEditText.getText().toString());
                 account.setPass(accountPassEditText.getText().toString());
+                account.setUrl(accountURLEditText.getText().toString());
 
                 AndroidCBLStore.getInstance().saveAccount(account);
                 MainActivity.getAccounts().remove(account);

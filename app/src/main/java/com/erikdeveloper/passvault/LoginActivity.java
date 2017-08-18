@@ -74,6 +74,14 @@ public class LoginActivity extends AppCompatActivity {
                 attemptLogin();
             }
         });
+
+        // check if save password is set, if so retrieve and attempt login with it
+        if (PreferenceManager.getDefaultSharedPreferences(LoginActivity.this).getBoolean(getString(R.string.SAVE_KEY_KEY), false)) {
+            Log.e(TAG, "Saving key");
+            String password = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this).getString(getString(R.string.PASSWORD_KEY), "");
+            mPasswordView.setText(password);
+            attemptLogin();
+        }
     }
 
 
@@ -203,6 +211,14 @@ public class LoginActivity extends AppCompatActivity {
             showProgress(false);
 
             if (success) {
+
+                // check if save password is set, if so save it
+                if (PreferenceManager.getDefaultSharedPreferences(LoginActivity.this).getBoolean(getString(R.string.SAVE_KEY_KEY), false)) {
+                    Log.e(TAG, "Saving key");
+                    PreferenceManager.getDefaultSharedPreferences(LoginActivity.this).edit()
+                            .putString(getString(R.string.PASSWORD_KEY), mPassword).commit();
+                }
+
                 Intent mainIntent = new Intent();
                 Bundle b = new Bundle();
                 b.putSerializable(MainActivity.ACCOUNTS_LIST, accounts);

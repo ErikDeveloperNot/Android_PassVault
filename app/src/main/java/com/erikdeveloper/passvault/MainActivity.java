@@ -7,6 +7,7 @@ import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -105,26 +106,37 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v,
                                         int groupPosition, int childPosition, long id) {
+                Account account = accounts.get(groupPosition);
 
                 switch (childPosition) {
                     case AccountExpandableListAdapter.PASS:
-                        saveToClipBoard(accounts.get(groupPosition).getPass());
+                        saveToClipBoard(account.getPass());
                         accountListView.collapseGroup(groupPosition);
                         break;
                     case AccountExpandableListAdapter.OLD_PASS:
-                        saveToClipBoard(accounts.get(groupPosition).getOldPass());
+                        saveToClipBoard(account.getOldPass());
                         break;
                     case AccountExpandableListAdapter.EDIT:
                         //start Edit Account Intent
                         Intent updateAccountIntent = new Intent();
                         Bundle b = new Bundle();
-                        b.putSerializable(EditAccountActivity.EDIT_ACCOUNT, accounts.get(groupPosition));
+                        b.putSerializable(EditAccountActivity.EDIT_ACCOUNT, account);
                         updateAccountIntent.putExtras(b);
                         updateAccountIntent.setClass(MainActivity.this, EditAccountActivity.class);
                         startActivityForResult(updateAccountIntent, UPDATE_ACCOUNT_CODE);
                         break;
                     case AccountExpandableListAdapter.DELETE:
-                        deleteAccount(accounts.get(groupPosition), groupPosition);
+                        deleteAccount(account, groupPosition);
+                        break;
+                    case AccountExpandableListAdapter.LAUNCH_URL:
+                        String url = account.getUrl();
+
+                        if (!url.equalsIgnoreCase("http://")) {
+                            saveToClipBoard(account.getPass());
+                            accountListView.collapseGroup(groupPosition);
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(account.getUrl())));
+                        }
+
                         break;
                 }
 
@@ -638,6 +650,14 @@ public class MainActivity extends AppCompatActivity {
                         Log.e(TAG, "finalKey=" + finalKey);
                         AndroidCBLStore.getInstance().setEncryptionKey(finalKey);
                         AndroidCBLStore.getInstance().saveAccounts(accounts);
+
+                        //check if save key is set, if so update the key
+                        if (PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getBoolean(getString(R.string.SAVE_KEY_KEY), false)) {
+                            PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit()
+                                    .putString(getString(R.string.PASSWORD_KEY), finalKey).commit();
+                            Log.e(TAG, "Saving Key");
+                        }
+
                         dialog.dismiss();
                     } catch (Exception e) {
                         e.printStackTrace();
