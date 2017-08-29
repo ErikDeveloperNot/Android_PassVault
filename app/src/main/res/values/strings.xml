@@ -22,6 +22,8 @@
     <string name="expandable_list_delete">Delete Account</string>
     <string name="expandable_list_pass">Copy Password to Clipboard</string>
     <string name="expandable_list_old_pass">Copy prior Password to Clipboard</string>
+    <string name="expandable_list_inactive_message">The password for this account can not be decrypted with the key entered. The options are to log back in with the correct key, recover this password by entering the old key, delete the account.</string>
+    <string name="expandable_List_recover_account">Enter Key to Recover Account</string>
     <!-- end -->
 
     <!-- Main Activity Buttons -->
@@ -170,12 +172,21 @@
     <string name="dialog_change_key_keys_dont_match">Keys Don\'t Match</string>
     <!-- end -->
 
+    <!-- recover password dialog items -->
+    <string name="dialog_recover_password_title">Recover Password</string>
+    <string name="dialog_recover_password_msg">Enter the encryption key that was used to create this account. If the key is correct the password will be decrpted and saved with the current key.</string>
+    <string name="dialog_recover_password_hint">&lt;Enter Key&gt;</string>
+    <string name="dialog_recover_password_enter">Enter</string>
+    <string name="dialog_recover_password_cancel">Cancel</string>
+    <string name="dialog_recover_password_ok">Ok</string>
+    <!-- end -->
+
     <!-- sync free service items -->
     <string name="title_activity_sync">SyncActivity</string>
     <!-- testing -->
     <!--string name="sync_free_registration_server">node1.user1.com:8443</string-->
     <!-- production -->
-    <string name="sync_free_registration_server">ec2-52-53-254-139.us-west-1.compute.amazonaws.com:8443</string>
+    <string name="sync_free_registration_server">ec2-13-56-39-109.us-west-1.compute.amazonaws.com:8443</string>
     <string name="fragment_sync_free_no_account_dialog">In order to sync passwords with the free service an account is needed. In order to create an account enter a valid email address/password and click Create. If a account already exists for this email address enter it along with the existing password and click Configure.</string>
     <string name="fragment_sync_free_existing_account_dialog">An account to sync with the free service is already configured. To delete the account on this device along with removing the account on the free service click Delete. To remove the account from this device but keep the account active on the free service click Remove.</string>
     <string name="fragment_sync_free_email">Enter Valid Email Address</string>

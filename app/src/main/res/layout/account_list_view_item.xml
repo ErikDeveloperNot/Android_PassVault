@@ -27,6 +27,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:textSize="17dip"
+        android:textAlignment="center"
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
         android:paddingLeft="?android:attr/expandableListPreferredChildPaddingLeft" />

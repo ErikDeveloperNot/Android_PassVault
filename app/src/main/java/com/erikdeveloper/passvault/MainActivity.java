@@ -7,6 +7,7 @@ import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -29,6 +30,7 @@ import com.erikdeveloper.passvault.couchbase.AndroidCBLStore;
 import com.passvault.crypto.AESEngine;
 import com.passvault.util.Account;
 import com.passvault.util.couchbase.AccountsChanged;
+import com.passvault.util.couchbase.CBLStore;
 import com.passvault.util.couchbase.SyncGatewayClient;
 import com.passvault.util.model.Gateway;
 
@@ -108,36 +110,47 @@ public class MainActivity extends AppCompatActivity {
                                         int groupPosition, int childPosition, long id) {
                 Account account = accounts.get(groupPosition);
 
-                switch (childPosition) {
-                    case AccountExpandableListAdapter.PASS:
-                        saveToClipBoard(account.getPass());
-                        accountListView.collapseGroup(groupPosition);
-                        break;
-                    case AccountExpandableListAdapter.OLD_PASS:
-                        saveToClipBoard(account.getOldPass());
-                        break;
-                    case AccountExpandableListAdapter.EDIT:
-                        //start Edit Account Intent
-                        Intent updateAccountIntent = new Intent();
-                        Bundle b = new Bundle();
-                        b.putSerializable(EditAccountActivity.EDIT_ACCOUNT, account);
-                        updateAccountIntent.putExtras(b);
-                        updateAccountIntent.setClass(MainActivity.this, EditAccountActivity.class);
-                        startActivityForResult(updateAccountIntent, UPDATE_ACCOUNT_CODE);
-                        break;
-                    case AccountExpandableListAdapter.DELETE:
-                        deleteAccount(account, groupPosition);
-                        break;
-                    case AccountExpandableListAdapter.LAUNCH_URL:
-                        String url = account.getUrl();
-
-                        if (!url.equalsIgnoreCase("http://")) {
+                if (account.isValidEncryption()) {
+                    switch (childPosition) {
+                        case AccountExpandableListAdapter.PASS:
                             saveToClipBoard(account.getPass());
                             accountListView.collapseGroup(groupPosition);
-                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(account.getUrl())));
-                        }
+                            break;
+                        case AccountExpandableListAdapter.OLD_PASS:
+                            saveToClipBoard(account.getOldPass());
+                            break;
+                        case AccountExpandableListAdapter.EDIT:
+                            //start Edit Account Intent
+                            Intent updateAccountIntent = new Intent();
+                            Bundle b = new Bundle();
+                            b.putSerializable(EditAccountActivity.EDIT_ACCOUNT, account);
+                            updateAccountIntent.putExtras(b);
+                            updateAccountIntent.setClass(MainActivity.this, EditAccountActivity.class);
+                            startActivityForResult(updateAccountIntent, UPDATE_ACCOUNT_CODE);
+                            break;
+                        case AccountExpandableListAdapter.DELETE:
+                            deleteAccount(account, groupPosition);
+                            break;
+                        case AccountExpandableListAdapter.LAUNCH_URL:
+                            String url = account.getUrl();
 
-                        break;
+                            if (!url.equalsIgnoreCase("http://")) {
+                                saveToClipBoard(account.getPass());
+                                accountListView.collapseGroup(groupPosition);
+                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(account.getUrl())));
+                            }
+
+                            break;
+                    }
+                } else {
+                    switch (childPosition) {
+                        case AccountExpandableListAdapter.INACTIVE_EDIT:
+                            showRecoverPasswordDialog(account);
+                            break;
+                        case AccountExpandableListAdapter.INACTIVE_DELETE:
+                            deleteAccount(account, groupPosition);
+                            break;
+                    }
                 }
 
                 return false;
@@ -349,112 +362,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void syncPasswords(SyncActivity.GatewayType type) {
 
-        /*SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-
-        final String host = prefs.getString(getString(com.developernot.passvault.R.string.SYNC_URL_KEY), SyncGatewayClient.DEFAULT_HOST);
-        final int port = Integer.parseInt(prefs.getString(getString(com.developernot.passvault.R.string.SYNC_PORT_KEY), String.valueOf(SyncGatewayClient.DEFAULT_PORT)));
-        final String bucket = prefs.getString(getString(com.developernot.passvault.R.string.SYNC_BUCKET_KEY), SyncGatewayClient.DEFAULT_BUCKET);
-        final String user = prefs.getString(getString(R.string.SYNC_USER_KEY), null);
-        final String pass = prefs.getString(getString(R.string.SYNC_PASS_KEY), null);
-        final String protocol = prefs.getString(getString(R.string.SYNC_PROTOCOL_KEY), SyncGatewayClient.DEFAULT_PROTOCOL);
-        */
-        //start test
-
-        // test calling register server, maybe some issues with keystore
-        /*
-        new Thread() {
-            @Override
-            public void run() {
-                super.run();
-                String reg = "ec2-54-193-22-33.us-west-1.compute.amazonaws.com:8443";
-                RegisterAccount regAccount = new RegisterAccount(reg);
-                RegisterResponse resp = regAccount.registerV1("new3@mail.com", "password");
-                Log.e(TAG, ">>>>>>>>>>>>>>> reg success = " + resp.success());
-
-                if (resp.success()) {
-                    Object returnV = resp.getReturnValue();
-
-                    if (returnV instanceof Gateway) {
-                        Log.e(TAG, " >>>>> Gateway config = " + ((Gateway)returnV).toString());
-                    } else {
-                        Log.e(TAG, " >>>>> Not Gateway Instance, " + returnV.getClass().getName());
-                    }
-                } else {
-                    Log.e(TAG, " >>>>> Error: " + resp.getError());
-                }
-            }
-        }.start();
-        */
-
-
-
-        // test Jackson json serialization in android - PASS
-        /*
-        Gateway local = new Gateway();
-        local.setBucket(bucket);
-        local.setPort(port);
-        local.setProtocol(protocol);
-        local.setServer(host);
-        local.setUserName(user);
-        local.setPassword(pass);
-        Gateway remote = new Gateway();
-        remote.setBucket("bucket_remote");
-        remote.setPort(4984);
-        remote.setProtocol("https");
-        remote.setServer("remotehost.com");
-        remote.setPassword("pass");
-        remote.setUserName("user1@mail.com");
-        Gateways gateways = new Gateways();
-        gateways.setRemote(remote);
-        gateways.setLocal(new Gateway[]{local});
-        ObjectMapper mapper = new ObjectMapper();
-
-        try {
-            prefs.edit().putString("gateways", mapper.writeValueAsString(gateways)).commit();
-        } catch (Exception e) {e.printStackTrace();}
-
-
-        String gws = prefs.getString("gateways", null);
-        ObjectMapper mapper2 = new ObjectMapper();
-        Gateways gateways2 = null;
-
-        try {
-            gateways2 = mapper2.readValue(gws, Gateways.class);
-        } catch (Exception e) {e.printStackTrace(); gateways2 = null;}
-
-        if (gateways2 != null) {
-            Log.e(TAG, gateways2.getRemote().toString());
-            Log.e(TAG, gateways2.getLocal()[0].toString());
-        }
-        */
-        //end test
-/*
-        final AccountsChanged accountsChgImpl = new AccountsChanged() {
-            @Override
-            public void onAccountsChanged() {
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        accounts.clear();
-
-                        try {
-                            AndroidCBLStore.getInstance().loadAccounts(accounts);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                        Collections.sort(accounts);
-                        ((AccountExpandableListAdapter) accountListView.getExpandableListAdapter()).notifyDataSetChanged();
-                    }
-                });
-
-            }
-        };
-*/
-
-        // Test running as async task
-
         class SyncAccounts extends AsyncTask<Gateway, Void, SyncGatewayClient.ReplicationStatus> {
             SyncGatewayClient.ReplicationStatus status = null;
             AccountsChanged accountsChgImpl = null;
@@ -463,41 +370,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-
-                /*ccountsChgImpl = new AccountsChanged() {
-                    @Override
-                    public void onAccountsChanged() {
-                        /*
-                        accounts.clear();
-
-                        try {
-                            AndroidCBLStore.getInstance().loadAccounts(accounts);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                        Collections.sort(accounts);
-                        ((AccountExpandableListAdapter) accountListView.getExpandableListAdapter()).notifyDataSetChanged();
-                        */
-                        /*
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                accounts.clear();
-
-                                try {
-                                    AndroidCBLStore.getInstance().loadAccounts(accounts);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-
-                                Collections.sort(accounts);
-                                ((AccountExpandableListAdapter) accountListView.getExpandableListAdapter()).notifyDataSetChanged();
-                            }
-                        });
-                        */
-                    /*}
-                };*/
             }
 
             @Override
@@ -658,6 +530,10 @@ public class MainActivity extends AppCompatActivity {
                             Log.e(TAG, "Saving Key");
                         }
 
+                        accounts.clear();
+                        AndroidCBLStore.getInstance().loadAccounts(accounts);
+                        ((AccountExpandableListAdapter) accountListView.getExpandableListAdapter()).notifyDataSetChanged();
+
                         dialog.dismiss();
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -677,6 +553,102 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        dialog.show();
+    }
+
+
+    private void showRecoverPasswordDialog(final Account account) {
+        final Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_recover_password);
+        dialog.setCancelable(true);
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.setTitle(R.string.dialog_recover_password_title);
+        final EditText enterKeyEditText = (EditText) dialog.findViewById(R.id.dialog_recover_password_edittext);
+        final TextView statusText = (TextView) dialog.findViewById(R.id.dialog_recover_password_status_textview);
+        final Button enterButton = (Button) dialog.findViewById(R.id.dialog_recover_password_enter_button);
+        final Button cancelButton = (Button) dialog.findViewById(R.id.dialog_recover_password_cancel_button);
+
+        enterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                statusText.setText("");
+                String key = enterKeyEditText.getText().toString().trim();
+
+                if (key == null || key.length() == 0) {
+                    statusText.setText("A Key needs to be entered, else <cancel>");
+                    statusText.setTextColor(Color.BLACK);
+                } else {
+                    String password = null;
+                    String oldPassword = null;
+                    String finalKey = null;
+                    CBLStore cblStore = AndroidCBLStore.getInstance();
+
+                    try {
+                        finalKey = AESEngine.finalizeKey(key, AESEngine.KEY_LENGTH_256);
+                        password = AESEngine.getInstance().decryptBytes(finalKey, cblStore.decodeString(account.getPass()));
+                        oldPassword = AESEngine.getInstance().decryptBytes(finalKey, cblStore.decodeString(account.getOldPass()));
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error decrypting password: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+
+                    if (password != null) {
+                        Log.e(TAG,"PASSWORD=" + password);
+                        account.setPass(password);
+
+                        if (oldPassword == null)
+                            //just use current password and lose the old
+                        oldPassword = password;
+
+                        account.setOldPass(oldPassword);
+                        account.setValidEncryption(true);
+                        cblStore.saveAccount(account);
+                        statusText.setText("Password has been recovered and encrypted with the current Key");
+                        statusText.setTextColor(Color.BLACK);
+                        cancelButton.setEnabled(false);
+                        enterButton.setText(R.string.dialog_recover_password_ok);
+
+                        enterButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                dialog.dismiss();
+                            }
+                        });
+
+                        //Collections.sort(accounts);
+                        ((AccountExpandableListAdapter) accountListView.getExpandableListAdapter()).notifyDataSetChanged();
+                    } else {
+                        statusText.setText("Unable to decrypt password with key, account remains inactive");
+                        statusText.setTextColor(Color.RED);
+                    }
+
+                }
+            }
+        });
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+
+        enterKeyEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                statusText.setText("");
+            }
+        });
         dialog.show();
     }
 }
