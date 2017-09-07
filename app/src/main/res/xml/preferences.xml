@@ -17,6 +17,12 @@
             android:title="@string/settings_activity_save_key_title"
             android:summary="@string/settings_activity_save_key_summary"/>
 
+        <SwitchPreference
+            android:key="@string/MRU_SORT_KEY"
+            android:defaultValue="@string/DEFAULT_MRU_SORT"
+            android:title="@string/settings_activity_mru_key_title"
+            android:summary="@string/settings_activity_mru_key_summary"/>
+
         <!--ListPreference
             android:key="@string/ENCRYPTION_KEY_LENGTH_KEY"
             android:title="@string/settings_activity_encryption_key_length_title"

@@ -29,7 +29,7 @@ public class SettingsActivity extends Activity implements SharedPreferences.OnSh
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getActionBar().setDisplayHomeAsUpEnabled(false);
 
         // Display the fragment as the main content.
         FragmentManager mFragmentManager = getFragmentManager();

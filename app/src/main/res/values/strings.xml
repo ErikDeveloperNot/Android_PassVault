@@ -84,6 +84,7 @@
     <string name="REG_SERVER_KEY">REG_SERVER_KEY</string>
     <string name="SAVE_KEY_KEY">SAVE_KEY_KEY</string>
     <string name="PASSWORD_KEY">PASSWORD_KEY</string>
+    <string name="MRU_SORT_KEY">MRU_SORT_KEY</string>
     <!-- end -->
 
     <!-- default values -->
@@ -103,6 +104,7 @@
     <string name="DEFAULT_SYNC_PORT">4984</string>
     <string name="DEFAULT_SYNC_PROTOCOL">http</string>
     <string name="DEFAULT_OVERRIDE_SYNC_CREDENTIALS">false</string>
+    <string name="DEFAULT_MRU_SORT">true</string>
     <string name="SAVE_KEY">false</string>
     <!-- end -->
 
@@ -117,6 +119,8 @@
     <string name="settings_activity_encryption_key_length_dialog">Choose encryption key length</string>
     <string name="settings_activity_save_key_title">Save Encryption Key</string>
     <string name="settings_activity_save_key_summary">Save encryption key so it doesn\'t need to typed at start up. NOT Recommended!!</string>
+    <string name="settings_activity_mru_key_title">Sort Accounts By Access</string>
+    <string name="settings_activity_mru_key_summary">Sort accounts by placing most used accounts first</string>
     <!-- end -->
 
     <!-- password generator -->

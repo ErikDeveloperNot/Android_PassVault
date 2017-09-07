@@ -29,6 +29,7 @@ import android.widget.Toast;
 import com.erikdeveloper.passvault.couchbase.AndroidCBLStore;
 import com.passvault.crypto.AESEngine;
 import com.passvault.util.Account;
+import com.passvault.util.MRUComparator;
 import com.passvault.util.couchbase.AccountsChanged;
 import com.passvault.util.couchbase.CBLStore;
 import com.passvault.util.couchbase.SyncGatewayClient;
@@ -46,11 +47,14 @@ public class MainActivity extends AppCompatActivity {
     public static final String ACCOUNTS_LIST = "ACCOUNTS_LIST";
     public static final int ADD_ACCOUNT_CODE = 1;
     public static final int UPDATE_ACCOUNT_CODE = 2;
+    public static final int SETTINGS_CODE = 3;
 
     public static final String GATEWAYS = "gateways";
 
     private ExpandableListView accountListView;
     private ClipboardManager clipboard;
+    private boolean sortMRU;
+    private MRUComparator mruComparator;
 
     private static ArrayList<Account> accounts = new ArrayList<>();
 
@@ -81,10 +85,15 @@ public class MainActivity extends AppCompatActivity {
         //store.saveAccounts(accounts);
         //store.loadAccounts(accounts);
         //Collections.sort(accounts);
+        mruComparator = new MRUComparator(AndroidCBLStore.getInstance());
+        sortMRU = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(getString(R.string.MRU_SORT_KEY), true);
 
         Bundle b = this.getIntent().getExtras();
         if (b != null) {
             accounts = (ArrayList<Account>) b.getSerializable(ACCOUNTS_LIST);
+
+            if (sortMRU)
+                Collections.sort(accounts, mruComparator);
             //MainActivity.getAccounts().remove(account);
         }
 
@@ -114,10 +123,30 @@ public class MainActivity extends AppCompatActivity {
                     switch (childPosition) {
                         case AccountExpandableListAdapter.PASS:
                             saveToClipBoard(account.getPass());
-                            accountListView.collapseGroup(groupPosition);
+                            mruComparator.accountAccessed(account.getName());
+                            mruComparator.saveAccessMap(AndroidCBLStore.getInstance());
+
+                            if (sortMRU) {
+                                Collections.sort(accounts, mruComparator);
+                            } else {
+                                Collections.sort(accounts);
+                            }
+
+                            ((AccountExpandableListAdapter) accountListView.getExpandableListAdapter()).notifyDataSetChanged();
                             break;
                         case AccountExpandableListAdapter.OLD_PASS:
+                            mruComparator.accountAccessed(account.getName());
+                            mruComparator.saveAccessMap(AndroidCBLStore.getInstance());
+
+                            if (sortMRU) {
+                                Collections.sort(accounts, mruComparator);
+                            } else {
+                                Collections.sort(accounts);
+                            }
+
+                            ((AccountExpandableListAdapter) accountListView.getExpandableListAdapter()).notifyDataSetChanged();
                             saveToClipBoard(account.getOldPass());
+                            accountListView.collapseGroup(groupPosition);
                             break;
                         case AccountExpandableListAdapter.EDIT:
                             //start Edit Account Intent
@@ -136,6 +165,7 @@ public class MainActivity extends AppCompatActivity {
 
                             if (!url.equalsIgnoreCase("http://")) {
                                 saveToClipBoard(account.getPass());
+                                mruComparator.accountAccessed(account.getName());
                                 accountListView.collapseGroup(groupPosition);
                                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(account.getUrl())));
                             }
@@ -218,7 +248,8 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case com.erikdeveloper.passvault.R.id.menu_settings:
                 Intent settingsIntent = new Intent(this, SettingsActivity.class);
-                startActivity(settingsIntent);
+                //startActivity(settingsIntent);
+                startActivityForResult(settingsIntent, SETTINGS_CODE);
                 return true;
             /*case com.developernot.passvault.R.id.menu_sync:
                 syncPasswords();
@@ -234,6 +265,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             case com.erikdeveloper.passvault.R.id.menu_exit:
                 clearClipBoard();
+                mruComparator.saveAccessMap(AndroidCBLStore.getInstance());
                 ExitActivity.exitApplication(this);
                 //finish();
                 //android.os.Process.killProcess(android.os.Process.myPid());
@@ -250,13 +282,32 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == RESULT_CANCELED)
+        if (resultCode == RESULT_CANCELED && requestCode != SETTINGS_CODE)
             return;
 
-        if (requestCode == ADD_ACCOUNT_CODE) {
+        if (requestCode == SETTINGS_CODE) {
+            sortMRU = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(getString(R.string.MRU_SORT_KEY), true);
+            System.out.println("Result=" + sortMRU);
+
+            if (sortMRU) {
+                Collections.sort(accounts, mruComparator);
+            } else {
+                Collections.sort(accounts);
+            }
+
+            ((AccountExpandableListAdapter) accountListView.getExpandableListAdapter()).notifyDataSetChanged();
+        } else if (requestCode == ADD_ACCOUNT_CODE) {
 
             if (resultCode == RESULT_OK) {
-                Collections.sort(accounts);
+                System.out.println("RECEIVED RESULT");
+                //Collections.sort(accounts);
+
+                if (sortMRU) {
+                    Collections.sort(accounts, mruComparator);
+                } else {
+                    Collections.sort(accounts);
+                }
+
                 ((AccountExpandableListAdapter) accountListView.getExpandableListAdapter()).notifyDataSetChanged();
             } else {
                 // check for android.view.WindowManager$BadTokenException: Unable to add window — token android.os.BinderProxy@
@@ -269,7 +320,14 @@ public class MainActivity extends AppCompatActivity {
         } else if (requestCode == UPDATE_ACCOUNT_CODE) {
 
             if (resultCode == RESULT_OK) {
-                Collections.sort(accounts);
+                //Collections.sort(accounts);
+
+                if (sortMRU) {
+                    Collections.sort(accounts, mruComparator);
+                } else {
+                    Collections.sort(accounts);
+                }
+
                 ((AccountExpandableListAdapter) accountListView.getExpandableListAdapter()).notifyDataSetChanged();
             } else {
                 // check for android.view.WindowManager$BadTokenException: Unable to add window — token android.os.BinderProxy@
@@ -278,7 +336,6 @@ public class MainActivity extends AppCompatActivity {
                 else
                     showAlertDialogIntentFailed("Update Account Error", "Failed to Update Account");
             }
-
         }
     }
 
@@ -335,6 +392,7 @@ public class MainActivity extends AppCompatActivity {
                 accountListView.collapseGroup(position);
                 //remove account from UI
                 accounts.remove(account);
+                mruComparator.accountRemoved(account.getName());
                 ((AccountExpandableListAdapter)accountListView.getExpandableListAdapter()).notifyDataSetChanged();
                 //remove account from CBL
                 AndroidCBLStore.getInstance().deleteAccount(account);
@@ -418,10 +476,15 @@ public class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-                    Collections.sort(accounts);
+                    //Collections.sort(accounts);
+                    if (sortMRU) {
+                        Collections.sort(accounts, mruComparator);
+                    } else {
+                        Collections.sort(accounts);
+                    }
+
                     ((AccountExpandableListAdapter) accountListView.getExpandableListAdapter()).notifyDataSetChanged();
                     Toast.makeText(MainActivity.this, "Password synchronization complete", Toast.LENGTH_LONG).show();
-
                 } else {
                     // check for android.view.WindowManager$BadTokenException: Unable to add window — token android.os.BinderProxy@
                     if (MainActivity.this.isFinishing() || MainActivity.this.isDestroyed())
@@ -532,8 +595,14 @@ public class MainActivity extends AppCompatActivity {
 
                         accounts.clear();
                         AndroidCBLStore.getInstance().loadAccounts(accounts);
-                        ((AccountExpandableListAdapter) accountListView.getExpandableListAdapter()).notifyDataSetChanged();
 
+                        if (sortMRU) {
+                            Collections.sort(accounts, mruComparator);
+                        } else {
+                            Collections.sort(accounts);
+                        }
+
+                        ((AccountExpandableListAdapter) accountListView.getExpandableListAdapter()).notifyDataSetChanged();
                         dialog.dismiss();
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -616,6 +685,12 @@ public class MainActivity extends AppCompatActivity {
                         });
 
                         //Collections.sort(accounts);
+                        if (sortMRU) {
+                            Collections.sort(accounts, mruComparator);
+                        } else {
+                            Collections.sort(accounts);
+                        }
+
                         ((AccountExpandableListAdapter) accountListView.getExpandableListAdapter()).notifyDataSetChanged();
                     } else {
                         statusText.setText("Unable to decrypt password with key, account remains inactive");
