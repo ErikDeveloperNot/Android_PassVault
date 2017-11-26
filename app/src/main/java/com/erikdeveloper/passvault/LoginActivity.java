@@ -4,11 +4,9 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -20,9 +18,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.erikdeveloper.passvault.couchbase.AndroidCBLStore;
 import com.passvault.crypto.AESEngine;
 import com.passvault.util.Account;
+import com.passvault.util.data.file.model.Settings;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,6 +42,8 @@ public class LoginActivity extends AppCompatActivity {
     private EditText mPasswordView;
     private View mProgressView;
     //private View mLoginFormView;
+
+    private AndroidJsonStore store;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,11 +74,12 @@ public class LoginActivity extends AppCompatActivity {
                 attemptLogin();
             }
         });
+        store = AndroidJsonStore.getInstance(this);
+        Settings settings = store.loadSettings();
 
-        // check if save password is set, if so retrieve and attempt login with it
-        if (PreferenceManager.getDefaultSharedPreferences(LoginActivity.this).getBoolean(getString(R.string.SAVE_KEY_KEY), false)) {
-            Log.e(TAG, "Saving key");
-            String password = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this).getString(getString(R.string.PASSWORD_KEY), "");
+        if (settings.getGeneral().isSaveKey()) {
+            Log.e(TAG, "Loading saved key");
+            String password = settings.getGeneral().getKey();
             mPasswordView.setText(password);
             attemptLogin();
         }
@@ -141,15 +142,6 @@ public class LoginActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-            /*mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });*/
-
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
             mProgressView.animate().setDuration(shortAnimTime).alpha(
                     show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
@@ -176,10 +168,7 @@ public class LoginActivity extends AppCompatActivity {
 
         UserLoginTask(String password) {
             try {
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
-                int length = Integer.parseInt(prefs.getString(getString(com.erikdeveloper.passvault.R.string.ENCRYPTION_KEY_LENGTH_KEY),
-                        getString(com.erikdeveloper.passvault.R.string.DEFAULT_ENCRYPTION_KEY_LENGTH)));
-                mPassword = AESEngine.finalizeKey(password, length);
+                mPassword = AESEngine.finalizeKey(password, AESEngine.KEY_LENGTH_256);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -189,13 +178,9 @@ public class LoginActivity extends AppCompatActivity {
         protected Boolean doInBackground(Void... params) {
 
             try {
-                //AndroidCBLStore store = AndroidCBLStore.getInstance("TestKey1TestKey2", LoginActivity.this);
-                AndroidCBLStore store = AndroidCBLStore.getInstance(mPassword, LoginActivity.this);
-                //Log.e(TAG, "PASSSSSS=" + mPassword);
+                store.setEncryptionKey(mPassword);
                 store.loadAccounts(accounts);
-                //store.resetAccounts(20, accounts, LoginActivity.this);
                 Collections.sort(accounts);
-                //store.saveAccounts(accounts);
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage());
                 e.printStackTrace();
@@ -212,11 +197,9 @@ public class LoginActivity extends AppCompatActivity {
 
             if (success) {
 
-                // check if save password is set, if so save it
-                if (PreferenceManager.getDefaultSharedPreferences(LoginActivity.this).getBoolean(getString(R.string.SAVE_KEY_KEY), false)) {
-                    Log.e(TAG, "Saving key");
-                    PreferenceManager.getDefaultSharedPreferences(LoginActivity.this).edit()
-                            .putString(getString(R.string.PASSWORD_KEY), mPassword).commit();
+                if (store.loadSettings().getGeneral().isSaveKey()) {
+                    Log.e(TAG, "Saving key.");
+                    store.loadSettings().getGeneral().setKey(mPassword);
                 }
 
                 Intent mainIntent = new Intent();
@@ -228,7 +211,6 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(mainIntent);
 
             } else {
-                AndroidCBLStore.destroyInstance();
                 mPasswordView.setError(getString(com.erikdeveloper.passvault.R.string.login_activity_error_incorrect_key));
                 mPasswordView.setText("");
                 mPasswordView.requestFocus();

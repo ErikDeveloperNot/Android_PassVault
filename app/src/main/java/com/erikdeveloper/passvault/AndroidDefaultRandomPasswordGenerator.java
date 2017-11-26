@@ -4,8 +4,10 @@ import android.util.Log;
 
 import com.passvault.util.DefaultRandomPasswordGenerator;
 
+import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.List;
 import java.util.Random;
 
 
@@ -13,7 +15,7 @@ import java.util.Random;
  * Created by erik.manor on 5/16/17.
  */
 
-public class AndroidDefaultRandomPasswordGenerator extends DefaultRandomPasswordGenerator {
+public class AndroidDefaultRandomPasswordGenerator extends DefaultRandomPasswordGenerator implements  Serializable {
 
     private static final String TAG = "DefaultRandomPasswdGen";
 
@@ -32,6 +34,18 @@ public class AndroidDefaultRandomPasswordGenerator extends DefaultRandomPassword
     }
 
 
+    public AndroidDefaultRandomPasswordGenerator(DefaultRandomPasswordGenerator generator) {
+        List<Character> allowedChars = generator.getAllowedCharactres();
+        this.clearAllowedCharacters();
+        this.setAllowedCharacters(allowedChars);
+        this.setCheckDigits(generator.isCheckDigits());
+        this.setCheckLower(generator.isCheckLower());
+        this.setCheckSpecial(generator.isCheckSpecial());
+        this.setCheckUpper(generator.isCheckUpper());
+        this.setLength(generator.getLength());
+    }
+
+
     @Override
     public String generatePassword(int length) {
         StringBuilder stringBuilder = null;
@@ -44,13 +58,6 @@ public class AndroidDefaultRandomPasswordGenerator extends DefaultRandomPassword
             random = new Random();
         }
 
-		/*
-		System.out.println("Algorithm: " + ((SecureRandom)random).getAlgorithm() + ",  Provider: " +
-				((SecureRandom)random).getProvider().getName() + ", " + ((SecureRandom)random).getProvider().getInfo() +
-				", " + ((SecureRandom)random).getProvider().getVersion());
-		*/
-
-        //IntStream is = random.ints();
         PasswordConstraints constraints = null;
 
         do {

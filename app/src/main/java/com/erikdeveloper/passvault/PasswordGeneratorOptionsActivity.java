@@ -22,6 +22,7 @@ public class PasswordGeneratorOptionsActivity extends Activity {
         mFragmentTransaction.replace(android.R.id.content, mPrefsFragment);
         mFragmentTransaction.commit();
 
+
     }
 
 
@@ -35,4 +36,6 @@ public class PasswordGeneratorOptionsActivity extends Activity {
             addPreferencesFromResource(com.erikdeveloper.passvault.R.xml.password_gen);
         }
     }
+
+
 }

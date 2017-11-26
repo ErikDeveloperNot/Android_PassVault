@@ -26,14 +26,15 @@ import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.erikdeveloper.passvault.couchbase.AndroidCBLStore;
 import com.passvault.crypto.AESEngine;
 import com.passvault.util.Account;
 import com.passvault.util.MRUComparator;
-import com.passvault.util.couchbase.AccountsChanged;
-import com.passvault.util.couchbase.CBLStore;
-import com.passvault.util.couchbase.SyncGatewayClient;
+import com.passvault.util.data.file.model.Generator;
+import com.passvault.util.data.file.model.Settings;
 import com.passvault.util.model.Gateway;
+import com.passvault.util.model.Gateways;
+import com.passvault.util.sync.AccountsChanged;
+import com.passvault.util.sync.ReplicationStatus;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,8 +56,9 @@ public class MainActivity extends AppCompatActivity {
     private ClipboardManager clipboard;
     private boolean sortMRU;
     private MRUComparator mruComparator;
+    private AndroidJsonStore store;
 
-    private static ArrayList<Account> accounts = new ArrayList<>();
+    private static ArrayList<Account> accounts;// = new ArrayList<>();
 
 
     @Override
@@ -70,23 +72,11 @@ public class MainActivity extends AppCompatActivity {
         clearClipboardButton.setText(com.erikdeveloper.passvault.R.string.main_activity_clear_clipboard);
 
         clipboard = (ClipboardManager) getSystemService(this.CLIPBOARD_SERVICE);
+        store = AndroidJsonStore.getInstance();
+        Settings settings = store.loadSettings();
 
-
-        // create CBL instance this will be done once specifying key,afterwards all calls will
-        // use AndroidCBLStore.getInstance()
-        //AndroidCBLStore store = AndroidCBLStore.getInstance("TestKey1TestKey2", this);
-        //accounts = new ArrayList<>();
-        //store.resetAccounts(20, accounts, this);
-        //AndroidCBLStore.getInstance().resetAccounts(20, accounts, this);
-        Log.e(TAG, "Accounts size = " + accounts.size());
-
-
-        //Log.e(TAG, Integer.toString("TestKey1TestKey2".getBytes().length));
-        //store.saveAccounts(accounts);
-        //store.loadAccounts(accounts);
-        //Collections.sort(accounts);
-        mruComparator = new MRUComparator(AndroidCBLStore.getInstance());
-        sortMRU = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(getString(R.string.MRU_SORT_KEY), true);
+        mruComparator = new MRUComparator(store);
+        sortMRU = settings.getGeneral().isSortMRU();
 
         Bundle b = this.getIntent().getExtras();
         if (b != null) {
@@ -94,20 +84,16 @@ public class MainActivity extends AppCompatActivity {
 
             if (sortMRU)
                 Collections.sort(accounts, mruComparator);
-            //MainActivity.getAccounts().remove(account);
         }
 
-        // log any local conflicts
-        AndroidCBLStore.getInstance().printConflicts();
+        Log.e(TAG, "Accounts size = " + accounts.size() + ", " + accounts + ", Thread=" + Thread.currentThread().getName());
+        store.printConflicts();
 
         // check to see if purge deletes should be run
-        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(getString(R.string.DB_PURGE_ON_DELETE_KEY), false)) {
+        if (settings.getDatabase().isPurge()) {
             Log.e(TAG, "Purging database deletes");
-            AndroidCBLStore.getInstance().purgeDeletes();
+            store.purgeDeletes();
         }
-
-
-
 
         AccountExpandableListAdapter accountExpandableListAdapter = new AccountExpandableListAdapter(this, accounts);
         accountListView.setAdapter(accountExpandableListAdapter);
@@ -123,8 +109,9 @@ public class MainActivity extends AppCompatActivity {
                     switch (childPosition) {
                         case AccountExpandableListAdapter.PASS:
                             saveToClipBoard(account.getPass());
+                            accountListView.collapseGroup(groupPosition);
                             mruComparator.accountAccessed(account.getName());
-                            mruComparator.saveAccessMap(AndroidCBLStore.getInstance());
+                            mruComparator.saveAccessMap(store);
 
                             if (sortMRU) {
                                 Collections.sort(accounts, mruComparator);
@@ -136,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         case AccountExpandableListAdapter.OLD_PASS:
                             mruComparator.accountAccessed(account.getName());
-                            mruComparator.saveAccessMap(AndroidCBLStore.getInstance());
+                            mruComparator.saveAccessMap(store);
 
                             if (sortMRU) {
                                 Collections.sort(accounts, mruComparator);
@@ -203,6 +190,12 @@ public class MainActivity extends AppCompatActivity {
                 clearClipBoard();
             }
         });
+
+        // if there is no generator saved in the store create one
+        if (settings.getGenerator() == null) {
+            settings.setGenerator(new Generator());
+            store.saveSettings(settings);
+        }
     }
 
 
@@ -213,31 +206,23 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(com.erikdeveloper.passvault.R.menu.main_menu, menu);
         menu.getItem(1).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
-                Gateway free = SyncActivity.getGateway(prefs, MainActivity.this, SyncActivity.GatewayType.Remote);
-                Gateway local = SyncActivity.getGateway(prefs, MainActivity.this, SyncActivity.GatewayType.Local);
+                Gateways gateways = store.loadSettings().getSync();
 
-                if (free == null || (free.getServer() == null || free.getServer().equalsIgnoreCase("")))
+
+                if (gateways == null || gateways.getRemote() == null || gateways.getRemote().getServer().equalsIgnoreCase(""))
                     menuItem.getSubMenu().getItem(0).setEnabled(false);
                 else
                     menuItem.getSubMenu().getItem(0).setEnabled(true);
-                    //Log.e(TAG, ")))))))) free not enabled");
-
-                if (local == null || (local.getServer() == null || local.getServer().equalsIgnoreCase("")))
-                    menuItem.getSubMenu().getItem(1).setEnabled(false);
-                else
-                    menuItem.getSubMenu().getItem(1).setEnabled(true);
-                    //Log.e(TAG, ")))))))) persoanl not enabled");
 
                 return true;
             }
         });
-        //menu.getItem(1).getSubMenu().getItem(1).setEnabled(false);
+
         return true;
     }
 
@@ -248,29 +233,18 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case com.erikdeveloper.passvault.R.id.menu_settings:
                 Intent settingsIntent = new Intent(this, SettingsActivity.class);
-                //startActivity(settingsIntent);
                 startActivityForResult(settingsIntent, SETTINGS_CODE);
                 return true;
-            /*case com.developernot.passvault.R.id.menu_sync:
-                syncPasswords();
-                return true;*/
             case com.erikdeveloper.passvault.R.id.menu_sync_free:
                 syncPasswords(SyncActivity.GatewayType.Remote);
-                return true;
-            case com.erikdeveloper.passvault.R.id.menu_sync_personal:
-                syncPasswords(SyncActivity.GatewayType.Local);
                 return true;
             case com.erikdeveloper.passvault.R.id.menu_key:
                 showChangeKeyDialog();
                 return true;
             case com.erikdeveloper.passvault.R.id.menu_exit:
                 clearClipBoard();
-                mruComparator.saveAccessMap(AndroidCBLStore.getInstance());
+                mruComparator.saveAccessMap(store);
                 ExitActivity.exitApplication(this);
-                //finish();
-                //android.os.Process.killProcess(android.os.Process.myPid());
-                //super.onDestroy();
-                //android.os.Process.killProcess(android.os.Process.myPid());
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -286,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
             return;
 
         if (requestCode == SETTINGS_CODE) {
-            sortMRU = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(getString(R.string.MRU_SORT_KEY), true);
+            sortMRU = store.loadSettings().getGeneral().isSortMRU();
             System.out.println("Result=" + sortMRU);
 
             if (sortMRU) {
@@ -300,7 +274,6 @@ public class MainActivity extends AppCompatActivity {
 
             if (resultCode == RESULT_OK) {
                 System.out.println("RECEIVED RESULT");
-                //Collections.sort(accounts);
 
                 if (sortMRU) {
                     Collections.sort(accounts, mruComparator);
@@ -320,7 +293,6 @@ public class MainActivity extends AppCompatActivity {
         } else if (requestCode == UPDATE_ACCOUNT_CODE) {
 
             if (resultCode == RESULT_OK) {
-                //Collections.sort(accounts);
 
                 if (sortMRU) {
                     Collections.sort(accounts, mruComparator);
@@ -352,7 +324,7 @@ public class MainActivity extends AppCompatActivity {
     private void clearClipBoard() {
         int numberOfClipToDelete;
 
-        // in case of non integer, default to 20
+        // in case of non integer, default to 20 - leave as Preferences
         try {
             numberOfClipToDelete = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this)
                     .getString(getString(R.string.CLIP_NUMBER_REMOVE_KEY), "20"));
@@ -394,8 +366,7 @@ public class MainActivity extends AppCompatActivity {
                 accounts.remove(account);
                 mruComparator.accountRemoved(account.getName());
                 ((AccountExpandableListAdapter)accountListView.getExpandableListAdapter()).notifyDataSetChanged();
-                //remove account from CBL
-                AndroidCBLStore.getInstance().deleteAccount(account);
+                store.deleteAccount(account);
 
                 Toast.makeText(MainActivity.this, "Account " + account.getName() + " Deleted.",
                         Toast.LENGTH_LONG).show();
@@ -420,9 +391,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void syncPasswords(SyncActivity.GatewayType type) {
 
-        class SyncAccounts extends AsyncTask<Gateway, Void, SyncGatewayClient.ReplicationStatus> {
-            SyncGatewayClient.ReplicationStatus status = null;
-            AccountsChanged accountsChgImpl = null;
+        //class SyncAccounts extends AsyncTask<Gateway, Void, SyncGatewayClient.ReplicationStatus> {
+        class SyncAccounts extends AsyncTask<Gateway, Void, ReplicationStatus> {
+            ReplicationStatus status = null;
+            //AccountsChanged accountsChgImpl = null;
+            AccountsChanged accountsChgImpl = new AccountsChanged() {
+                @Override
+                public void onAccountsChanged() {
+                }
+            };
 
 
             @Override
@@ -431,12 +408,16 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            protected SyncGatewayClient.ReplicationStatus doInBackground(Gateway... gateways) {
+            protected ReplicationStatus doInBackground(Gateway... gateways) {
                 Gateway gateway = gateways[0];
 
-                status = AndroidCBLStore.getInstance()
-                        .syncAccounts(gateway.getServer(), gateway.getProtocol(), gateway.getPort(), gateway.getBucket(),
-                                gateway.getUserName(), gateway.getPassword(), accountsChgImpl);
+                status = store.syncAccounts(gateway.getServer(),
+                                            gateway.getProtocol(),
+                                            gateway.getPort(),
+                                            gateway.getBucket(),
+                                            gateway.getUserName(),
+                                            gateway.getPassword(),
+                                            accountsChgImpl);
 
                 do {
                     try {
@@ -452,7 +433,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            protected void onPostExecute(SyncGatewayClient.ReplicationStatus replicationStatus) {
+            protected void onPostExecute(ReplicationStatus replicationStatus) {
                 super.onPostExecute(replicationStatus);
                 boolean success = true;
                 StringBuilder error = new StringBuilder();
@@ -471,12 +452,11 @@ public class MainActivity extends AppCompatActivity {
                     accounts.clear();
 
                     try {
-                        AndroidCBLStore.getInstance().loadAccounts(accounts);
+                        store.loadAccounts(accounts);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
 
-                    //Collections.sort(accounts);
                     if (sortMRU) {
                         Collections.sort(accounts, mruComparator);
                     } else {
@@ -496,12 +476,15 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        //new SyncAccounts().execute(SyncActivity.getGateway(prefs, MainActivity.this, SyncActivity.GatewayType.Remote));
+        Gateway gateway = null;
 
-        new SyncAccounts().execute(SyncActivity.getGateway(
-                PreferenceManager.getDefaultSharedPreferences(MainActivity.this),
-                MainActivity.this,
-                type));
+        if (type == SyncActivity.GatewayType.Remote) {
+            gateway = store.loadSettings().getSync().getRemote();
+        } else {
+            Log.w(TAG, "Gateway is not of type Remote ??");
+        }
+
+        new SyncAccounts().execute(gateway);
 
     }
 
@@ -529,19 +512,26 @@ public class MainActivity extends AppCompatActivity {
         dialog.setCanceledOnTouchOutside(true);
         dialog.setTitle(com.erikdeveloper.passvault.R.string.dialog_change_key_title);
         final TextView statusView = (TextView) dialog.findViewById(com.erikdeveloper.passvault.R.id.dialog_change_key_status_textview);
+        statusView.setTextColor(Color.RED);
         final EditText enterKeyEditText = (EditText) dialog.findViewById(com.erikdeveloper.passvault.R.id.dialog_change_key_enter_key_edittext);
         final EditText reenterKeyEditText = (EditText) dialog.findViewById(com.erikdeveloper.passvault.R.id.dialog_change_key_reenter_key_edittext);
-        Button enterButton = (Button) dialog.findViewById(com.erikdeveloper.passvault.R.id.dialog_change_key_enter_button);
+        final Button enterButton = (Button) dialog.findViewById(com.erikdeveloper.passvault.R.id.dialog_change_key_enter_button);
         Button cancelButton = (Button) dialog.findViewById(com.erikdeveloper.passvault.R.id.dialog_change_key_cancel_button);
 
         class MyFocusChangeListerner implements View.OnFocusChangeListener {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    if (enterKeyEditText.getText().toString().equals(reenterKeyEditText.getText().toString()))
+                    if (enterKeyEditText.getText().toString().equals(reenterKeyEditText.getText().toString()) &&
+                            !enterKeyEditText.getText().toString().equalsIgnoreCase("")) {
                         statusView.setText(com.erikdeveloper.passvault.R.string.dialog_change_key_keys_match);
-                    else
+                        statusView.setTextColor(Color.GREEN);
+                        enterButton.setEnabled(true);
+                    } else {
                         statusView.setText(com.erikdeveloper.passvault.R.string.dialog_change_key_keys_dont_match);
+                        statusView.setTextColor(Color.RED);
+                        enterButton.setEnabled(false);
+                    }
                 }
             }
         }
@@ -558,10 +548,16 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (enterKeyEditText.getText().toString().equals(reenterKeyEditText.getText().toString()))
+                if (enterKeyEditText.getText().toString().equals(reenterKeyEditText.getText().toString()) &&
+                        !enterKeyEditText.getText().toString().equalsIgnoreCase("")) {
                     statusView.setText(com.erikdeveloper.passvault.R.string.dialog_change_key_keys_match);
-                else
+                    statusView.setTextColor(Color.GREEN);
+                    enterButton.setEnabled(true);
+                } else {
                     statusView.setText(com.erikdeveloper.passvault.R.string.dialog_change_key_keys_dont_match);
+                    statusView.setTextColor(Color.RED);
+                    enterButton.setEnabled(false);
+                }
             }
         }
 
@@ -579,22 +575,19 @@ public class MainActivity extends AppCompatActivity {
                 if (enterKeyEditText.getText().toString().equals(reenterKeyEditText.getText().toString())) {
                     try {
                         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-                        int length = Integer.parseInt(prefs.getString(getString(com.erikdeveloper.passvault.R.string.ENCRYPTION_KEY_LENGTH_KEY),
-                                getString(com.erikdeveloper.passvault.R.string.DEFAULT_ENCRYPTION_KEY_LENGTH)));
-                        String finalKey = AESEngine.finalizeKey(enterKeyEditText.getText().toString(), length);
+                        String finalKey = AESEngine.finalizeKey(enterKeyEditText.getText().toString(),
+                                AESEngine.KEY_LENGTH_256);
                         Log.e(TAG, "finalKey=" + finalKey);
-                        AndroidCBLStore.getInstance().setEncryptionKey(finalKey);
-                        AndroidCBLStore.getInstance().saveAccounts(accounts);
+                        store.setEncryptionKey(finalKey);
+                        store.saveAccounts(accounts);
 
-                        //check if save key is set, if so update the key
-                        if (PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getBoolean(getString(R.string.SAVE_KEY_KEY), false)) {
-                            PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit()
-                                    .putString(getString(R.string.PASSWORD_KEY), finalKey).commit();
+                        if (store.loadSettings().getGeneral().isSaveKey()) {
                             Log.e(TAG, "Saving Key");
+                            store.loadSettings().getGeneral().setKey(finalKey);
                         }
 
                         accounts.clear();
-                        AndroidCBLStore.getInstance().loadAccounts(accounts);
+                        store.loadAccounts(accounts);
 
                         if (sortMRU) {
                             Collections.sort(accounts, mruComparator);
@@ -615,6 +608,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        enterButton.setEnabled(false);
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -650,28 +644,27 @@ public class MainActivity extends AppCompatActivity {
                     String password = null;
                     String oldPassword = null;
                     String finalKey = null;
-                    CBLStore cblStore = AndroidCBLStore.getInstance();
 
                     try {
                         finalKey = AESEngine.finalizeKey(key, AESEngine.KEY_LENGTH_256);
-                        password = AESEngine.getInstance().decryptBytes(finalKey, cblStore.decodeString(account.getPass()));
-                        oldPassword = AESEngine.getInstance().decryptBytes(finalKey, cblStore.decodeString(account.getOldPass()));
+                        password = AESEngine.getInstance().decryptBytes(finalKey, store.decodeString(account.getPass()));
+                        oldPassword = AESEngine.getInstance().decryptBytes(finalKey, store.decodeString(account.getOldPass()));
                     } catch (Exception e) {
                         Log.e(TAG, "Error decrypting password: " + e.getMessage());
                         e.printStackTrace();
                     }
 
                     if (password != null) {
-                        Log.e(TAG,"PASSWORD=" + password);
                         account.setPass(password);
 
-                        if (oldPassword == null)
+                        if (oldPassword == null) {
                             //just use current password and lose the old
-                        oldPassword = password;
+                            oldPassword = password;
+                        }
 
                         account.setOldPass(oldPassword);
                         account.setValidEncryption(true);
-                        cblStore.saveAccount(account);
+                        store.saveAccount(account);
                         statusText.setText("Password has been recovered and encrypted with the current Key");
                         statusText.setTextColor(Color.BLACK);
                         cancelButton.setEnabled(false);
@@ -684,7 +677,6 @@ public class MainActivity extends AppCompatActivity {
                             }
                         });
 
-                        //Collections.sort(accounts);
                         if (sortMRU) {
                             Collections.sort(accounts, mruComparator);
                         } else {

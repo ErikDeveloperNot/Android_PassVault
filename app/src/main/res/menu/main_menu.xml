@@ -22,8 +22,8 @@
         <menu>
             <item android:id="@+id/menu_sync_free"
                 android:title="@string/menu_sync_free"/>
-            <item android:id="@+id/menu_sync_personal"
-                android:title="@string/menu_sync_personal"/>
+            <!--item android:id="@+id/menu_sync_personal"
+                android:title="@string/menu_sync_personal"/-->
         </menu>
     </item>
     <item android:id="@+id/menu_key"

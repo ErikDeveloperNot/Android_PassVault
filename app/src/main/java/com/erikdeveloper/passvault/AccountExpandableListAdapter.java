@@ -64,9 +64,6 @@ public class AccountExpandableListAdapter extends BaseExpandableListAdapter {
             return FIELD_COUNT_INACTIVE;
         }
     }
-    /*public int getChildrenCount(int groupPosition) {
-        return FIELD_COUNT;
-    }*/
 
 
     @Override

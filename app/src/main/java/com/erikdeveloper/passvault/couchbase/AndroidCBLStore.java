@@ -1,24 +1,12 @@
 package com.erikdeveloper.passvault.couchbase;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
-import android.util.Base64;
-import android.util.Log;
-
-import com.couchbase.lite.Database;
-import com.couchbase.lite.DatabaseOptions;
-import com.couchbase.lite.Manager;
-import com.couchbase.lite.android.AndroidContext;
-import com.passvault.util.Account;
-import com.passvault.util.AccountUUIDResolver;
-import com.passvault.util.Utils;
-import com.passvault.util.couchbase.AccountsChanged;
-import com.passvault.util.couchbase.CBLStore;
-import com.passvault.util.couchbase.SyncGatewayClient;
-
-import java.util.List;
+//import com.couchbase.lite.Database;
+//import com.couchbase.lite.DatabaseOptions;
+//import com.couchbase.lite.Manager;
+//import com.couchbase.lite.android.AndroidContext;
+//import com.passvault.util.couchbase.AccountsChanged;
+//import com.passvault.util.couchbase.CBLStore;
+//import com.passvault.util.couchbase.SyncGatewayClient;
 
 /**
  * Created by erik.manor on 5/7/17.
@@ -27,7 +15,7 @@ import java.util.List;
  *                     by main thread so know sync issues need to be worried about.
  */
 
-public class AndroidCBLStore extends CBLStore implements AccountUUIDResolver {
+public class AndroidCBLStore { /*extends CBLStore implements AccountUUIDResolver {
 
     private static AndroidCBLStore androidCBLStore;
     private static String TAG = "AndroidCBLStore";
@@ -179,6 +167,6 @@ Log.e(TAG, "------------ Returing accountUUID: " + PreferenceManager.getDefaultS
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
 }

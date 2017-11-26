@@ -12,12 +12,6 @@ public class OverridePasswordGeneratorOptionsActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // TODO: 5/25/17 revist if there is a good way to make this behave like back button
-        //getActionBar().setDisplayHomeAsUpEnabled(true);
-        //getActionBar().setTitle("Return to Add Account");
-        //getActionBar().setDisplayShowHomeEnabled(true);
-        //setContentView(R.layout.activity_password_generator);
-
         // Display the fragment as the main content.
         FragmentManager mFragmentManager = getFragmentManager();
         FragmentTransaction mFragmentTransaction = mFragmentManager

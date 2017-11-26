@@ -11,16 +11,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.erikdeveloper.passvault.couchbase.AndroidCBLStore;
 import com.passvault.util.Account;
 import com.passvault.util.RandomPasswordGenerator;
 
-import java.util.Arrays;
 import java.util.Set;
-import java.util.TreeSet;
 
 public class EditAccountActivity extends Activity {
 
+    private RandomPasswordGenerator passwdGen = null;
     private Account account = null;
     private static final String TAG = "EditAccountActivity";
 
@@ -31,10 +29,6 @@ public class EditAccountActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(com.erikdeveloper.passvault.R.layout.activity_edit_account);
         getActionBar().setDisplayHomeAsUpEnabled(true);
-
-        // Always turn off custom password gen options
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        prefs.edit().putBoolean(getString(com.erikdeveloper.passvault.R.string.OVER_GEN_OVERRIDE_KEY), false).commit();
 
         final EditText accountNameEditText = (EditText) findViewById(com.erikdeveloper.passvault.R.id.add_account_activity_account_name_edittext);
         final EditText accountUserEditText = (EditText) findViewById(com.erikdeveloper.passvault.R.id.add_account_activity_user_name_edittext);
@@ -75,7 +69,7 @@ public class EditAccountActivity extends Activity {
                 account.setPass(accountPassEditText.getText().toString());
                 account.setUrl(accountURLEditText.getText().toString());
 
-                AndroidCBLStore.getInstance().saveAccount(account);
+                AndroidJsonStore.getInstance().saveAccount(account);
                 MainActivity.getAccounts().remove(account);
                 MainActivity.getAccounts().add(account);
 
@@ -87,89 +81,12 @@ public class EditAccountActivity extends Activity {
         generatePassButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //todo  Get System default password constraints from somehwere?
-                // for now default is 32 length, allows lower, upper, special, digits
-                /*RandomPasswordGenerator passwdGen = AndroidDefaultRandomPasswordGenerator.getInstance();
-                String password = passwdGen.generatePassword();
-                accountPassEditText.setText(password);*/
-
-                RandomPasswordGenerator passwdGen = null;
                 String password;
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(EditAccountActivity.this);
-                boolean overrideGenerator = prefs.getBoolean(getString(com.erikdeveloper.passvault.R.string.OVER_GEN_OVERRIDE_KEY), false);
 
-                boolean lower, upper, digits, special;
-                int length;
-
-                if (overrideGenerator) {
-                    // get overridden values
-                    lower = prefs.getBoolean(getString(com.erikdeveloper.passvault.R.string.OVER_GEN_LOWER_KEY),
-                            Boolean.valueOf(getString(com.erikdeveloper.passvault.R.string.DEFAULT_LOWER_GEN)));
-                    upper = prefs.getBoolean(getString(com.erikdeveloper.passvault.R.string.OVER_GEN_UPPER_KEY),
-                            Boolean.valueOf(getString(com.erikdeveloper.passvault.R.string.DEFAULT_UPPER_GEN)));
-                    digits = prefs.getBoolean(getString(com.erikdeveloper.passvault.R.string.OVER_GEN_DIGIT_KEY),
-                            Boolean.valueOf(getString(com.erikdeveloper.passvault.R.string.DEFAULT_DIGIT_GEN)));
-                    special = prefs.getBoolean(getString(com.erikdeveloper.passvault.R.string.OVER_GEN_SPECIAL_KEY),
-                            Boolean.valueOf(getString(com.erikdeveloper.passvault.R.string.DEFAULT_SPECIAL_GEN)));
-                    length = Integer.parseInt(prefs.getString(getString(com.erikdeveloper.passvault.R.string.OVER_GEN_LENGTH_KEY),
-                            getString(com.erikdeveloper.passvault.R.string.DEFAULT_PASS_LENGTH)));
-
-                    passwdGen = AndroidDefaultRandomPasswordGenerator.getInstance(length, lower, upper, special, digits);
-
-                    if (special) {
-                        // get allowed special characters
-                        String[] specials = getResources().getStringArray(com.erikdeveloper.passvault.R.array.settings_activity_pass_gen_special_specify_values);
-                        Set<String> set = prefs.getStringSet(getString(com.erikdeveloper.passvault.R.string.OVER_GEN_SPECIAL_SPECIFY_KEY),
-                                new TreeSet<String>(Arrays.asList(specials)));
-                        Log.e(TAG, lower+":"+upper+":"+digits+":"+special+":"+length+":"+set+":::"+specials.length);
-
-                        for (String s: specials) {
-                            // set should never be null but just in case
-                            if (set != null && !set.contains(s)) {
-                                Log.e(TAG, ">>>> " + s);
-                                passwdGen.removedAllowedCharacters(s.trim().charAt(0));
-                            }
-                        }
-
-                    }
-                } else {
-                    // use generator values
-                    lower = prefs.getBoolean(getString(com.erikdeveloper.passvault.R.string.GEN_LOWER_KEY),
-                            Boolean.valueOf(getString(com.erikdeveloper.passvault.R.string.DEFAULT_LOWER_GEN)));
-                    upper = prefs.getBoolean(getString(com.erikdeveloper.passvault.R.string.GEN_UPPER_KEY),
-                            Boolean.valueOf(getString(com.erikdeveloper.passvault.R.string.DEFAULT_UPPER_GEN)));
-                    digits = prefs.getBoolean(getString(com.erikdeveloper.passvault.R.string.GEN_DIGIT_KEY),
-                            Boolean.valueOf(getString(com.erikdeveloper.passvault.R.string.DEFAULT_DIGIT_GEN)));
-                    special = prefs.getBoolean(getString(com.erikdeveloper.passvault.R.string.GEN_SPECIAL_KEY),
-                            Boolean.valueOf(getString(com.erikdeveloper.passvault.R.string.DEFAULT_SPECIAL_GEN)));
-                    length = Integer.parseInt(prefs.getString(getString(com.erikdeveloper.passvault.R.string.GEN_LENGTH_KEY),
-                            getString(com.erikdeveloper.passvault.R.string.DEFAULT_PASS_LENGTH)));
-
-                    passwdGen = AndroidDefaultRandomPasswordGenerator.getInstance(length, lower, upper, special, digits);
-
-                    if (special) {
-                        // get allowed special characters
-                        String[] specials = getResources().getStringArray(com.erikdeveloper.passvault.R.array.settings_activity_pass_gen_special_specify_values);
-                        Set<String> set = prefs.getStringSet(getString(com.erikdeveloper.passvault.R.string.GEN_SPECIAL_SPECIFY_KEY),
-                                new TreeSet<String>(Arrays.asList(specials)));
-                        Log.e(TAG, lower + ":" + upper + ":" + digits + ":" + special + ":" + length + ":" + set + ":::" + specials.length);
-
-                        for (String s : specials) {
-                            //set maybe null if defaults have not been edited yet
-                            if (set != null && !set.contains(s)) {
-                                Log.e(TAG, ">>>> " + s);
-                                passwdGen.removedAllowedCharacters(s.trim().charAt(0));
-                            }
-                        }
-
-                    }
+                if (passwdGen == null) {
+                    passwdGen = new AndroidDefaultRandomPasswordGenerator(
+                            AndroidJsonStore.getInstance().loadSettings().getDefaultRandomPasswordGenerator());
                 }
-
-                StringBuilder sb = new StringBuilder();
-                for (char c: passwdGen.getAllowedCharactres()) {
-                    sb.append(c + ",");
-                }
-                Log.e(TAG, sb.toString());
 
                 password = passwdGen.generatePassword();
                 accountPassEditText.setText(password);
@@ -177,12 +94,63 @@ public class EditAccountActivity extends Activity {
             }
         });
 
+
         overridePassButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent overrideIntent = new Intent(EditAccountActivity.this, OverridePasswordGeneratorOptionsActivity.class);
-                startActivity(overrideIntent);
+                //startActivity(overrideIntent);
+                startActivityForResult(overrideIntent, 1);
             }
         });
+
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1) {// && resultCode == RESULT_OK) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(EditAccountActivity.this);
+
+            if (prefs.getBoolean(getString(com.erikdeveloper.passvault.R.string.OVER_GEN_OVERRIDE_KEY), false)) {
+                boolean lower = prefs.getBoolean(getString(R.string.OVER_GEN_LOWER_KEY), true);
+                boolean upper = prefs.getBoolean(getString(R.string.OVER_GEN_UPPER_KEY), true);
+                boolean digits = prefs.getBoolean(getString(R.string.OVER_GEN_DIGIT_KEY), true);
+                int length = Integer.parseInt(prefs.getString(getString(R.string.OVER_GEN_LENGTH_KEY), "32"));
+                Set<String> specials = null;
+
+                if (prefs.getBoolean(getString(R.string.OVER_GEN_SPECIAL_KEY), false)) {
+                    // get allowed special characters
+                    specials = prefs.getStringSet(getString(R.string.OVER_GEN_SPECIAL_SPECIFY_KEY), null);
+                }
+
+                passwdGen = AndroidDefaultRandomPasswordGenerator.getInstance(
+                        length,
+                        lower,
+                        upper,
+                        ((specials == null) ? true : !specials.isEmpty()),
+                        digits);
+System.out.println("special null=" + (specials != null) + ", empty=" + !specials.isEmpty() + ", getB=" + prefs.getBoolean(getString(R.string.OVER_GEN_SPECIAL_KEY), false));
+                if (specials != null && !specials.isEmpty() && prefs.getBoolean(getString(R.string.OVER_GEN_SPECIAL_KEY), false)) {
+                    String[] defaultSpecials =
+                            getResources().getStringArray(com.erikdeveloper.passvault.R.array.settings_activity_pass_gen_special_specify_values);
+
+                    for (String s : defaultSpecials) {
+                        if (!specials.contains(s)) {
+                            Log.e(TAG, "Removing Special Character: " + s);
+                            passwdGen.removedAllowedCharacters(s.trim().charAt(0));
+                        }
+                    }
+                }
+
+                if (passwdGen.getAllowedCharactres().isEmpty())
+                    passwdGen = null;
+            }
+        } else {
+            passwdGen = null;
+        }
+
     }
 }

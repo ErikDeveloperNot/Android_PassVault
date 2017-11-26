@@ -12,10 +12,14 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.erikdeveloper.passvault.couchbase.AndroidCBLStore;
-import com.passvault.crypto.AESEngine;
+import com.passvault.util.DefaultRandomPasswordGenerator;
+import com.passvault.util.data.file.model.Generator;
+import com.passvault.util.data.file.model.Properties;
+import com.passvault.util.data.file.model.Settings;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
 public class SettingsActivity extends Activity implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -25,6 +29,8 @@ public class SettingsActivity extends Activity implements SharedPreferences.OnSh
     //// TODO: 5/21/17  - check how to make widgets update with new value when manually set it with editor.commit
     //                    check better way to provide contraints then using OnSharedPreferenceChangeListener
 
+    private Settings settings;
+    private AndroidJsonStore store;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +47,9 @@ public class SettingsActivity extends Activity implements SharedPreferences.OnSh
 
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
 
+        store = AndroidJsonStore.getInstance();
+        settings = store.loadSettings();
+
 
 //  We could have condensed the 5 lines into 1 line of code.
 //		getFragmentManager().beginTransaction()
@@ -54,48 +63,71 @@ public class SettingsActivity extends Activity implements SharedPreferences.OnSh
         //for now this is a hack
         Log.e(TAG, key);
 
-
         if (key.equalsIgnoreCase(getString(com.erikdeveloper.passvault.R.string.CLIP_NUMBER_REMOVE_KEY))) {
-            Log.e(TAG, key);
-            int test;
-
-            /*String value = sharedPreferences.getString(getString(R.string.CLIP_NUMBER_REMOVE_KEY), "20");
-            Log.e(TAG, value);*/
-            try {
-                test = Integer.parseInt(sharedPreferences.getString(key, "20").trim());
-            } catch (NumberFormatException e) {
-                sharedPreferences.edit().putString(key, "20").commit();
-                showAlertDialogIntentFailed("ERROR", getString(com.erikdeveloper.passvault.R.string.settings_activity_clipboard_delete_error));
-                test = 20;
-            }
-
-            // dont allow values over 25
-            if (test > 25)
-                sharedPreferences.edit().putString(key, "20").commit();
-
+            numberOfClipsToRemove(key, sharedPreferences);
+        } else if (key.equalsIgnoreCase(getString(R.string.MRU_SORT_KEY))) {
+            settings.getGeneral().setSortMRU(sharedPreferences.getBoolean(getString(R.string.MRU_SORT_KEY), true));
+            store.saveSettings(settings);
+        } else if (key.equalsIgnoreCase(getString(R.string.DB_PURGE_ON_DELETE_KEY))) {
+            settings.getDatabase().setPurge(sharedPreferences.getBoolean(getString(R.string.DB_PURGE_ON_DELETE_KEY), true));
+            store.saveSettings(settings);
         } else if (key.equalsIgnoreCase(getString(com.erikdeveloper.passvault.R.string.GEN_OVERRIDE_KEY))) {
-            boolean on = sharedPreferences.getBoolean(key, Boolean.valueOf(getString(com.erikdeveloper.passvault.R.string.DEFAULT_OVERRIDE_GEN)));
-            Log.e(TAG, ">> on=" + on);
-            if (!on) {
-                //make sure to reset to defaults
-                SharedPreferences.Editor edit = sharedPreferences.edit();
-                edit.putBoolean(getString(com.erikdeveloper.passvault.R.string.GEN_LOWER_KEY),
-                        Boolean.valueOf(getString(com.erikdeveloper.passvault.R.string.DEFAULT_LOWER_GEN)));
-                edit.putBoolean(getString(com.erikdeveloper.passvault.R.string.GEN_UPPER_KEY),
-                        Boolean.valueOf(getString(com.erikdeveloper.passvault.R.string.DEFAULT_UPPER_GEN)));
-                edit.putBoolean(getString(com.erikdeveloper.passvault.R.string.GEN_DIGIT_KEY),
-                        Boolean.valueOf(getString(com.erikdeveloper.passvault.R.string.DEFAULT_DIGIT_GEN)));
-                edit.putBoolean(getString(com.erikdeveloper.passvault.R.string.GEN_SPECIAL_KEY),
-                        Boolean.valueOf(getString(com.erikdeveloper.passvault.R.string.DEFAULT_SPECIAL_GEN)));
-                edit.putString(getString(com.erikdeveloper.passvault.R.string.GEN_LENGTH_KEY),
-                        getString(com.erikdeveloper.passvault.R.string.DEFAULT_PASS_LENGTH));
-                edit.putStringSet(getString(com.erikdeveloper.passvault.R.string.GEN_SPECIAL_SPECIFY_KEY),
-                        new TreeSet<String>(Arrays.asList(getResources().
-                                getStringArray(com.erikdeveloper.passvault.R.array.settings_activity_pass_gen_special_specify_values))));
-                edit.commit();
+            overRideGeneratorOptions(key, sharedPreferences);
+        } else if (key.equalsIgnoreCase(getString(R.string.GEN_LENGTH_KEY))) {
+            String length = sharedPreferences.getString(getString(R.string.GEN_LENGTH_KEY), null);
+            Properties properties = settings.getGenerator().getProperties();
+            properties.setLength(Integer.parseInt(length));
+            settings.getGenerator().setProperties(properties);
+            store.saveSettings(settings);
+        } else if (key.equalsIgnoreCase(getString(R.string.GEN_DIGIT_KEY))) {
+            boolean useDigits = sharedPreferences.getBoolean(getString(R.string.GEN_DIGIT_KEY), true);
+
+            if (useDigits) {
+                addCharactersAndSave(DefaultRandomPasswordGenerator.getDefaultDigits());
+            } else {
+                removeCharactersAndSave(DefaultRandomPasswordGenerator.getDefaultDigits());
             }
-        } else if (key.equalsIgnoreCase(getString(com.erikdeveloper.passvault.R.string.ENCRYPTION_KEY_LENGTH_KEY))) {
-            String currentKey = AndroidCBLStore.getInstance().getEncryptionKey();
+        } else if (key.equalsIgnoreCase(getString(R.string.GEN_LOWER_KEY))) {
+            boolean useLower = sharedPreferences.getBoolean(getString(R.string.GEN_LOWER_KEY), true);
+
+            if (useLower) {
+                addCharactersAndSave(DefaultRandomPasswordGenerator.getDefaultLower());
+            } else {
+                removeCharactersAndSave(DefaultRandomPasswordGenerator.getDefaultLower());
+            }
+        } else if (key.equalsIgnoreCase(getString(R.string.GEN_UPPER_KEY))) {
+            boolean useUpper = sharedPreferences.getBoolean(getString(R.string.GEN_UPPER_KEY), true);
+
+            if (useUpper) {
+                addCharactersAndSave(DefaultRandomPasswordGenerator.getDefaultUpper());
+            } else {
+                removeCharactersAndSave(DefaultRandomPasswordGenerator.getDefaultUpper());
+            }
+        } else if (key.equalsIgnoreCase(getString(R.string.GEN_SPECIAL_KEY))) {
+            boolean useSpecial = sharedPreferences.getBoolean(getString(R.string.GEN_SPECIAL_KEY), true);
+
+            if (useSpecial) {
+                addCharactersAndSave(DefaultRandomPasswordGenerator.getDefaultSpecial());
+            } else {
+                removeCharactersAndSave(DefaultRandomPasswordGenerator.getDefaultSpecial());
+            }
+        } else if (key.equalsIgnoreCase(getString(R.string.GEN_SPECIAL_SPECIFY_KEY))) {
+            List<Character> currentSpecials = settings.getGenerator().getProperties().getAllowedCharacters();
+            Set<String> newSpecials = sharedPreferences.getStringSet(getString(R.string.GEN_SPECIAL_SPECIFY_KEY), null);
+
+            for (Character c : DefaultRandomPasswordGenerator.getDefaultSpecial()) {
+                System.out.println("Checking: " + c + ", newSpecials.contains=" + newSpecials.contains(c.toString()) + ", currentSpecials.contiains=" + currentSpecials.contains(c));
+                if (newSpecials.contains(c.toString())) {
+                    if (!currentSpecials.contains(c))
+                        currentSpecials.add(c);
+                } else {
+                    currentSpecials.remove(c);
+                }
+            }
+
+            store.saveSettings(settings);
+        /*} else if (key.equalsIgnoreCase(getString(com.erikdeveloper.passvault.R.string.ENCRYPTION_KEY_LENGTH_KEY))) {
+            String currentKey = AndroidJsonStore.getInstance().getEncryptionKey();
             int keyLength = Integer.parseInt(sharedPreferences.getString(getString(com.erikdeveloper.passvault.R.string.ENCRYPTION_KEY_LENGTH_KEY),
                     getString(com.erikdeveloper.passvault.R.string.DEFAULT_ENCRYPTION_KEY_LENGTH)));
             
@@ -104,8 +136,8 @@ public class SettingsActivity extends Activity implements SharedPreferences.OnSh
                 try {
                     String newKey = AESEngine.finalizeKey(currentKey, keyLength);
                     Log.e(TAG, "finalKey=" + newKey);
-                    AndroidCBLStore.getInstance().setEncryptionKey(newKey);
-                    AndroidCBLStore.getInstance().saveAccounts(MainActivity.getAccounts());
+                    AndroidJsonStore.getInstance().setEncryptionKey(newKey);
+                    AndroidJsonStore.getInstance().saveAccounts(MainActivity.getAccounts());
                 } catch (Exception e) {
                     SharedPreferences.Editor edit = sharedPreferences.edit();
                     edit.putString(getString(com.erikdeveloper.passvault.R.string.ENCRYPTION_KEY_LENGTH_KEY), String.valueOf(currentKey.length()));
@@ -113,16 +145,9 @@ public class SettingsActivity extends Activity implements SharedPreferences.OnSh
                     e.printStackTrace();
                     showAlertDialogIntentFailed("ERROR", "Failed to change Encryption key size");
                 }
-            }
+            }*/
         } else if (key.equalsIgnoreCase(getString(R.string.SAVE_KEY_KEY))) {
-
-            if (sharedPreferences.getBoolean(getString(R.string.SAVE_KEY_KEY), false)) {
-                sharedPreferences.edit().putString(getString(R.string.PASSWORD_KEY), AndroidCBLStore.getInstance().getEncryptionKey()).commit();
-                Log.e(TAG, "Saving Key");
-            } else {
-                sharedPreferences.edit().putString(getString(R.string.PASSWORD_KEY), "").commit();
-                Log.e(TAG, "Removed Key");
-            }
+            saveKey(sharedPreferences);
         }
 
     }
@@ -160,5 +185,95 @@ public class SettingsActivity extends Activity implements SharedPreferences.OnSh
 
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+
+    private void numberOfClipsToRemove(String key, SharedPreferences sharedPreferences) {
+        Log.e(TAG, key);
+        int test;
+
+        try {
+            test = Integer.parseInt(sharedPreferences.getString(key, "20").trim());
+        } catch (NumberFormatException e) {
+            sharedPreferences.edit().putString(key, "20").commit();
+            showAlertDialogIntentFailed("ERROR", getString(com.erikdeveloper.passvault.R.string.settings_activity_clipboard_delete_error));
+            test = 20;
+        }
+
+        // dont allow values over 25
+        if (test > 25)
+            sharedPreferences.edit().putString(key, "20").commit();
+
+    }
+
+
+    private void overRideGeneratorOptions(String key, SharedPreferences sharedPreferences) {
+        boolean on = sharedPreferences.getBoolean(key, Boolean.valueOf(getString(com.erikdeveloper.passvault.R.string.DEFAULT_OVERRIDE_GEN)));
+        Log.e(TAG, ">> on=" + on);
+
+        if (!on) {
+            //make sure to reset to defaults
+            SharedPreferences.Editor edit = sharedPreferences.edit();
+            edit.putBoolean(getString(com.erikdeveloper.passvault.R.string.GEN_LOWER_KEY),
+                    Boolean.valueOf(getString(com.erikdeveloper.passvault.R.string.DEFAULT_LOWER_GEN)));
+            edit.putBoolean(getString(com.erikdeveloper.passvault.R.string.GEN_UPPER_KEY),
+                    Boolean.valueOf(getString(com.erikdeveloper.passvault.R.string.DEFAULT_UPPER_GEN)));
+            edit.putBoolean(getString(com.erikdeveloper.passvault.R.string.GEN_DIGIT_KEY),
+                    Boolean.valueOf(getString(com.erikdeveloper.passvault.R.string.DEFAULT_DIGIT_GEN)));
+            edit.putBoolean(getString(com.erikdeveloper.passvault.R.string.GEN_SPECIAL_KEY),
+                    Boolean.valueOf(getString(com.erikdeveloper.passvault.R.string.DEFAULT_SPECIAL_GEN)));
+            edit.putString(getString(com.erikdeveloper.passvault.R.string.GEN_LENGTH_KEY),
+                    getString(com.erikdeveloper.passvault.R.string.DEFAULT_PASS_LENGTH));
+            edit.putStringSet(getString(com.erikdeveloper.passvault.R.string.GEN_SPECIAL_SPECIFY_KEY),
+                    new TreeSet<String>(Arrays.asList(getResources().
+                            getStringArray(com.erikdeveloper.passvault.R.array.settings_activity_pass_gen_special_specify_values))));
+            edit.commit();
+            // reset settings generator to the default
+            settings.setGenerator(new Generator());
+            store.saveSettings(settings);
+        }
+    }
+
+
+    private void saveKey(SharedPreferences sharedPreferences) {
+
+        if (sharedPreferences.getBoolean(getString(R.string.SAVE_KEY_KEY), false)) {
+            sharedPreferences.edit().putString(getString(R.string.PASSWORD_KEY), AndroidJsonStore.getInstance().getEncryptionKey()).commit();
+            settings.getGeneral().setSaveKey(true);
+            settings.getGeneral().setKey(AndroidJsonStore.getInstance().getEncryptionKey());
+            AndroidJsonStore.getInstance().saveSettings(settings);
+            Log.e(TAG, "Saving Key");
+        } else {
+            sharedPreferences.edit().putString(getString(R.string.PASSWORD_KEY), "").commit();
+            settings.getGeneral().setSaveKey(false);
+            settings.getGeneral().setKey("");
+            AndroidJsonStore.getInstance().saveSettings(settings);
+            Log.e(TAG, "Removed Key");
+        }
+    }
+
+
+    private void addCharactersAndSave(char[] toAdd) {
+        Properties properties = settings.getGenerator().getProperties();
+        List<Character> currentSet =  properties.getAllowedCharacters();
+
+        for (Character charToAdd : toAdd) {
+            if (!currentSet.contains(charToAdd))
+                currentSet.add(charToAdd);
+        }
+
+        store.saveSettings(settings);
+    }
+
+
+    private void removeCharactersAndSave(char[] toRemove) {
+        Properties properties = settings.getGenerator().getProperties();
+        List<Character> currentSet =  properties.getAllowedCharacters();
+
+        for (Character charToRemove : toRemove) {
+            currentSet.remove(charToRemove);
+        }
+
+        store.saveSettings(settings);
     }
 }
